@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Access — Onchain Membership</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ── Tokens ───────────────────────────────────────── */
+:root {
+  --bg:         #18151C;
+  --surface:    #221E28;
+  --surface2:   #2A2434;
+  --border:     #2E2838;
+  --border2:    #3D3650;
+  --text:       #F0ECF8;
+  --text-muted: #8A80A0;
+  --text-dim:   #4A4360;
+  --violet:     #7C5CFC;
+  --violet-dim: rgba(124,92,252,.13);
+  --violet-glow:rgba(124,92,252,.28);
+  --teal:       #38D9C0;
+  --amber:      #F5C842;
+  --red:        #FC5C7D;
+  --green:      #56E39F;
+  --r:          12px;
+  --r-sm:       7px;
+  --t:          .16s ease;
+  --syne:       'Syne', system-ui, sans-serif;
+  --plex:       'IBM Plex Sans', system-ui, sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:var(--plex);line-height:1.6;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit}
+
+/* ── Tab nav ──────────────────────────────────────── */
+#topbar{
+  position:sticky;top:0;z-index:80;
+  background:rgba(24,21,28,.9);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 32px;
+  display:flex;align-items:center;gap:0;
+  height:56px;
+}
+.topbar-logo{
+  font-family:var(--syne);font-size:1.1rem;font-weight:700;
+  color:var(--text);letter-spacing:-.01em;
+  margin-right:32px;display:flex;align-items:center;gap:8px;
+  flex-shrink:0;
+}
+.logo-gem{
+  width:20px;height:20px;
+  background:var(--violet);
+  clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);
+  flex-shrink:0;
+}
+.tab-list{display:flex;gap:0;flex:1;overflow-x:auto}
+.tab{
+  padding:0 18px;height:56px;
+  display:flex;align-items:center;
+  font-size:.83rem;font-weight:500;color:var(--text-muted);
+  border-bottom:2px solid transparent;
+  cursor:pointer;white-space:nowrap;
+  transition:color var(--t),border-color var(--t);
+}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--violet);border-bottom-color:var(--violet)}
+.topbar-wallet{
+  margin-left:auto;flex-shrink:0;display:flex;align-items:center;gap:10px;
+}
+.wallet-btn{
+  display:flex;align-items:center;gap:7px;
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:var(--r-sm);
+  padding:7px 14px;cursor:pointer;
+  font-size:.8rem;font-weight:500;font-family:var(--plex);
+  color:var(--text-muted);
+  transition:border-color var(--t),color var(--t);
+}
+.wallet-btn:hover{border-color:var(--violet);color:var(--text)}
+.w-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dim)}
+.w-dot.on{background:var(--green)}
+
+/* ── Pages ────────────────────────────────────────── */
+.page{display:none;padding:40px 32px 72px;max-width:1080px;margin:0 auto}
+.page.active{display:block}
+#page-landing{max-width:none;padding:0;margin:0}
+
+/* ── Typography ───────────────────────────────────── */
+.page-heading{
+  font-family:var(--syne);font-size:1.75rem;font-weight:700;
+  letter-spacing:-.02em;line-height:1.15;
+  margin-bottom:6px;
+}
+.page-sub{color:var(--text-muted);font-size:.88rem;margin-bottom:32px}
+
+/* ── Components ───────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 20px;border-radius:var(--r-sm);
+  font-size:.83rem;font-weight:600;font-family:var(--plex);
+  border:none;white-space:nowrap;
+  transition:all var(--t);
+}
+.btn-violet{background:var(--violet);color:#fff}
+.btn-violet:hover{filter:brightness(1.1)}
+.btn-outline{background:transparent;color:var(--text-muted);border:1px solid var(--border2)}
+.btn-outline:hover{border-color:var(--violet);color:var(--violet)}
+.btn-teal{background:rgba(56,217,192,.15);color:var(--teal);border:1px solid rgba(56,217,192,.3)}
+.btn-teal:hover{background:rgba(56,217,192,.22)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(252,92,125,.3)}
+.btn-danger:hover{background:rgba(252,92,125,.08)}
+.btn-sm{padding:5px 13px;font-size:.77rem}
+.btn:disabled{opacity:.35;pointer-events:none}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:24px;
+}
+
+.form-row{margin-bottom:16px}
+.form-label{display:block;font-size:.78rem;font-weight:500;color:var(--text-muted);margin-bottom:5px}
+.form-input{
+  width:100%;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--r-sm);
+  color:var(--text);padding:9px 12px;font-size:.87rem;
+  outline:none;transition:border-color var(--t);
+}
+.form-input:focus{border-color:var(--violet)}
+.form-input::placeholder{color:var(--text-dim)}
+textarea.form-input{resize:vertical;min-height:72px}
+select.form-input option{background:var(--surface2)}
+
+.chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600;
+}
+.chip-violet{background:var(--violet-dim);color:var(--violet)}
+.chip-green{background:rgba(86,227,159,.12);color:var(--green)}
+.chip-red{background:rgba(252,92,125,.12);color:var(--red)}
+.chip-amber{background:rgba(245,200,66,.12);color:var(--amber)}
+.chip-muted{background:var(--surface2);color:var(--text-muted)}
+.chip-teal{background:rgba(56,217,192,.12);color:var(--teal)}
+
+/* ── Membership Pass Card ─────────────────────────── */
+.pass-card{
+  position:relative;overflow:hidden;
+  border-radius:14px;
+  padding:28px 28px 24px;
+  min-height:168px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  background:linear-gradient(135deg, var(--surface2) 0%, #1E1A2A 100%);
+  border:1px solid var(--border2);
+}
+.pass-card::before{
+  content:'';position:absolute;
+  top:-40px;right:-40px;
+  width:180px;height:180px;border-radius:50%;
+  background:var(--violet-glow);
+  pointer-events:none;
+}
+.pass-card.status-active::before{background:rgba(86,227,159,.18)}
+.pass-card.status-expired::before{background:rgba(245,200,66,.14)}
+.pass-card.status-suspended::before{background:rgba(252,92,125,.16)}
+.pass-card.status-revoked::before{background:rgba(90,80,110,.15)}
+
+.pass-org{font-family:var(--syne);font-size:.8rem;font-weight:600;color:var(--text-muted);letter-spacing:.04em}
+.pass-plan{font-family:var(--syne);font-size:1.3rem;font-weight:700;line-height:1.1;margin:6px 0 2px}
+.pass-holder{font-size:.75rem;color:var(--text-muted);font-family:'IBM Plex Mono', monospace}
+.pass-meta{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.pass-expiry{font-size:.72rem;color:var(--text-muted)}
+.pass-status-dot{
+  width:9px;height:9px;border-radius:50%;flex-shrink:0;
+}
+.dot-active{background:var(--green);box-shadow:0 0 8px var(--green)}
+.dot-expired{background:var(--amber)}
+.dot-suspended{background:var(--red)}
+.dot-revoked{background:var(--text-dim)}
+
+/* ── Org card ─────────────────────────────────────── */
+.org-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:20px;
+  cursor:pointer;transition:border-color var(--t);
+  display:flex;align-items:center;gap:16px;
+}
+.org-card:hover{border-color:var(--border2)}
+.org-logo{
+  width:46px;height:46px;border-radius:var(--r-sm);
+  background:var(--violet-dim);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--syne);font-size:1.1rem;font-weight:700;
+  color:var(--violet);flex-shrink:0;
+}
+.org-info h4{font-family:var(--syne);font-size:.95rem;font-weight:600;margin-bottom:2px}
+.org-info p{font-size:.78rem;color:var(--text-muted)}
+.org-meta{margin-left:auto;text-align:right;flex-shrink:0}
+.org-meta-num{font-family:var(--syne);font-size:1.2rem;font-weight:700;color:var(--text)}
+.org-meta-label{font-size:.68rem;color:var(--text-dim)}
+
+/* ── Plan card ────────────────────────────────────── */
+.plan-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:20px 22px;
+  transition:border-color var(--t);
+}
+.plan-card:hover{border-color:var(--border2)}
+.plan-name{font-family:var(--syne);font-size:1rem;font-weight:700;margin-bottom:4px}
+.plan-price{
+  font-family:var(--syne);font-size:1.6rem;font-weight:800;
+  color:var(--violet);line-height:1;margin:8px 0;
+}
+.plan-price span{font-size:.85rem;font-weight:400;color:var(--text-muted)}
+.plan-benefits{font-size:.82rem;color:var(--text-muted);margin-bottom:12px;line-height:1.5}
+
+/* ── Stat row ─────────────────────────────────────── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.stat{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;
+}
+.stat-val{font-family:var(--syne);font-size:1.7rem;font-weight:700;line-height:1}
+.stat-label{font-size:.72rem;color:var(--text-muted);margin-top:4px}
+
+/* ── Grid ─────────────────────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+
+/* ── Table ────────────────────────────────────────── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:.72rem;font-weight:600;color:var(--text-dim);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border)}
+.tbl td{font-size:.82rem;padding:11px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:rgba(255,255,255,.02)}
+
+/* ── Modal ────────────────────────────────────────── */
+.overlay{
+  position:fixed;inset:0;background:rgba(16,13,20,.88);
+  backdrop-filter:blur(6px);z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--r);padding:28px;width:100%;max-width:500px;
+  max-height:88vh;overflow-y:auto;
+}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-family:var(--syne);font-size:1.2rem;font-weight:700}
+.modal-x{background:none;border:none;color:var(--text-muted);font-size:1rem;padding:4px;line-height:1}
+.modal-x:hover{color:var(--text)}
+
+/* ── Toast ────────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:400;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--r-sm);padding:11px 16px;font-size:.83rem;
+  opacity:0;transform:translateY(6px);transition:all .22s ease;pointer-events:none;
+  max-width:300px;
+}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.ok{border-color:var(--green);color:var(--green)}
+#toast.err{border-color:var(--red);color:var(--red)}
+
+/* ── Landing ──────────────────────────────────────── */
+.lnav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 36px;height:60px;
+  background:rgba(24,21,28,.85);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.lnav-logo{font-family:var(--syne);font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  padding:100px 60px 60px;gap:80px;
+  position:relative;overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 55% 60% at 70% 50%, rgba(124,92,252,.1) 0%, transparent 65%),
+    radial-gradient(ellipse 30% 40% at 10% 80%, rgba(56,217,192,.06) 0%, transparent 55%);
+}
+.hero-left{flex:1;min-width:0}
+.hero-left h1{
+  font-family:var(--syne);font-size:clamp(2.4rem,5vw,4rem);font-weight:800;
+  line-height:1.05;letter-spacing:-.03em;margin-bottom:20px;
+}
+.hero-left p{font-size:1rem;color:var(--text-muted);max-width:440px;line-height:1.65;margin-bottom:32px}
+.hero-right{flex:0 0 340px}
+
+/* Hero pass card (decorative) */
+.hero-pass{
+  position:relative;border-radius:16px;padding:32px;
+  background:linear-gradient(145deg,#272030,#1A1724);
+  border:1px solid var(--border2);overflow:hidden;
+}
+.hero-pass::before{
+  content:'';position:absolute;top:-50px;right:-50px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(124,92,252,.2);
+}
+.hero-pass-org{font-family:var(--syne);font-size:.75rem;font-weight:600;color:var(--violet);letter-spacing:.05em;margin-bottom:10px}
+.hero-pass-name{font-family:var(--syne);font-size:1.6rem;font-weight:800;line-height:1;margin-bottom:6px}
+.hero-pass-sub{font-size:.8rem;color:var(--text-muted);margin-bottom:24px}
+.hero-pass-addr{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--text-dim)}
+.hero-pass-footer{display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.hero-pass-exp{font-size:.72rem;color:var(--text-muted)}
+.hero-pass-status{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--green)}
+.hero-pass-status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+
+.feature-row{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  gap:0;background:var(--border);
+}
+.feat{background:var(--bg);padding:36px 32px}
+.feat-num{font-family:var(--syne);font-size:.7rem;font-weight:700;color:var(--text-dim);margin-bottom:12px}
+.feat h3{font-family:var(--syne);font-size:1rem;font-weight:700;margin-bottom:8px}
+.feat p{font-size:.83rem;color:var(--text-muted);line-height:1.6}
+
+/* ── QR / Verification card ───────────────────────── */
+.verify-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:28px;max-width:420px;
+  text-align:center;
+}
+.qr-placeholder{
+  width:160px;height:160px;margin:0 auto 20px;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;color:var(--text-dim);
+}
+
+/* ── Misc ─────────────────────────────────────────── */
+.empty{text-align:center;padding:48px 24px;color:var(--text-muted);font-size:.87rem}
+.empty-ico{font-size:2rem;margin-bottom:12px}
+.divider{height:1px;background:var(--border);margin:24px 0}
+.flex{display:flex}.aic{align-items:center}.jb{justify-content:space-between}
+.gap2{gap:8px}.gap3{gap:12px}.gap4{gap:16px}
+.mt2{margin-top:8px}.mt3{margin-top:12px}.mt4{margin-top:16px}.mb4{margin-bottom:16px}
+.text-muted{color:var(--text-muted)}.text-sm{font-size:.8rem}.text-violet{color:var(--violet)}
+.syne{font-family:var(--syne)}
+.w-full{width:100%}
+
+@media(max-width:860px){
+  #topbar{padding:0 16px}
+  .tab{padding:0 12px;font-size:.78rem}
+  .page{padding:24px 16px 60px}
+  .hero{flex-direction:column;padding:90px 24px 48px;gap:40px}
+  .hero-right{width:100%;flex:none}
+  .stat-row{grid-template-columns:1fr 1fr}
+  .g2,.g3{grid-template-columns:1fr}
+  .feature-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top bar (shown for app pages) ─────────────── -->
+<div id="topbar" style="display:none">
+  <div class="topbar-logo">
+    <div class="logo-gem"></div>
+    Access
+  </div>
+  <div class="tab-list">
+    <div class="tab" data-p="directory"  onclick="show('directory')">Directory</div>
+    <div class="tab" data-p="my-passes"  onclick="show('my-passes')">My Passes</div>
+    <div class="tab" data-p="org-dash"   onclick="show('org-dash')">My Organization</div>
+    <div class="tab" data-p="create-org" onclick="show('create-org')">Register Org</div>
+    <div class="tab" data-p="verify"     onclick="show('verify')">Verify</div>
+    <div class="tab" data-p="admin"      onclick="show('admin')">Admin</div>
+  </div>
+  <div class="topbar-wallet">
+    <div class="wallet-btn" onclick="connectWallet()">
+      <div class="w-dot" id="wDot"></div>
+      <span id="wAddr">Connect</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Pages ──────────────────────────────────────── -->
+
+<!-- Landing -->
+<div id="page-landing" class="page active">
+  <nav class="lnav">
+    <div class="lnav-logo"><div class="logo-gem"></div> Access</div>
+    <div class="flex gap3">
+      <button class="btn btn-outline btn-sm" onclick="showApp('directory')">Browse orgs</button>
+      <button class="btn btn-violet btn-sm" onclick="connectAndGo()">Connect wallet</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-left">
+      <h1>Membership,<br/>onchain.</h1>
+      <p>Access lets communities, DAOs and services issue verifiable membership passes on BOT Chain. Membership status is always checked live from the contract — a screenshot proves nothing.</p>
+      <div class="flex gap3">
+        <button class="btn btn-violet" onclick="connectAndGo()">Get started</button>
+        <button class="btn btn-outline" onclick="showApp('directory')">Browse organizations</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-pass">
+        <div class="hero-pass-org">BOT BUILDER COLLECTIVE</div>
+        <div class="hero-pass-name">Core Member</div>
+        <div class="hero-pass-sub">Annual plan · Full access</div>
+        <div class="hero-pass-addr">0x4f2c…e91a</div>
+        <div class="hero-pass-footer">
+          <div class="hero-pass-exp">Expires Nov 2027</div>
+          <div class="hero-pass-status">
+            <div class="hero-pass-status-dot"></div>
+            Active
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-row">
+    <div class="feat">
+      <div class="feat-num">Organizations</div>
+      <h3>Your community, your rules</h3>
+      <p>Register your organization, define membership tiers with any price in BOT or USDT, and issue passes to your community — invitation-only or open to all.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-num">Members</div>
+      <h3>A pass that belongs to you</h3>
+      <p>Your membership lives on the blockchain. Renew it, display it, verify it. No centralized platform holds your access or can quietly deactivate your account.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-num">Verification</div>
+      <h3>Status checked live</h3>
+      <p>Any application can verify membership by calling the contract directly. A QR code or screenshot is not proof of active membership — the contract is.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Organization Directory -->
+<div id="page-directory" class="page">
+  <div class="page-heading">Organizations</div>
+  <p class="page-sub">Browse onchain communities and membership programs.</p>
+
+  <div class="flex gap3 mb4">
+    <input class="form-input" id="orgSearch" placeholder="Search by name…" style="max-width:300px" oninput="filterOrgs()"/>
+    <button class="btn btn-outline btn-sm" onclick="loadDirectory()">Refresh</button>
+  </div>
+
+  <div id="directoryList">
+    <div class="empty"><div class="empty-ico">◫</div>Connect wallet to browse organizations</div>
+  </div>
+</div>
+
+<!-- Org Detail (inline, replaces directory when selected) -->
+<div id="page-org-detail" class="page">
+  <button class="btn btn-outline btn-sm mb4" onclick="show('directory')">← Back to directory</button>
+  <div id="orgDetailContent"></div>
+</div>
+
+<!-- My Passes -->
+<div id="page-my-passes" class="page">
+  <div class="page-heading">My Passes</div>
+  <p class="page-sub">All membership passes held by your wallet.</p>
+  <div id="myPassesContent">
+    <div class="empty"><div class="empty-ico">⬡</div>Connect wallet to view your passes</div>
+  </div>
+</div>
+
+<!-- Org Dashboard -->
+<div id="page-org-dash" class="page">
+  <div class="page-heading">My Organization</div>
+  <p class="page-sub">Manage plans, members and revenue.</p>
+  <div id="orgDashContent">
+    <div class="empty"><div class="empty-ico">⬡</div>Connect wallet to manage your organization</div>
+  </div>
+</div>
+
+<!-- Register Org -->
+<div id="page-create-org" class="page">
+  <div class="page-heading">Register Organization</div>
+  <p class="page-sub">Create your onchain organization and start issuing membership passes.</p>
+
+  <div class="card" style="max-width:540px">
+    <div class="form-row">
+      <label class="form-label">Organization name</label>
+      <input class="form-input" id="oName" placeholder="e.g. BOT Builders Collective"/>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Description</label>
+      <textarea class="form-input" id="oDesc" placeholder="What is your organization?"></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Logo URI (optional)</label>
+      <input class="form-input" id="oLogo" placeholder="https:// or ipfs://"/>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Website</label>
+      <input class="form-input" id="oWeb" placeholder="https://"/>
+    </div>
+    <button class="btn btn-violet mt2" onclick="registerOrg()">Register organization</button>
+  </div>
+</div>
+
+<!-- Verify -->
+<div id="page-verify" class="page">
+  <div class="page-heading">Verify Membership</div>
+  <p class="page-sub">Check whether a wallet holds active membership in a plan. Status is read live from the contract.</p>
+
+  <div class="g2" style="max-width:760px;gap:20px">
+    <div class="card">
+      <div class="form-row">
+        <label class="form-label">Wallet address</label>
+        <input class="form-input" id="vAddr" placeholder="0x…"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Plan ID</label>
+        <input class="form-input" type="number" id="vPlanId" placeholder="0"/>
+      </div>
+      <button class="btn btn-violet" onclick="verifyMembership()">Check membership</button>
+    </div>
+    <div id="verifyResult" class="verify-card" style="display:none;text-align:left"></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="page-heading" style="font-size:1.1rem">Claim Invitation</div>
+  <p class="text-sm text-muted mb4">If you received an invitation, enter the invitation ID to claim your pass.</p>
+  <div class="card" style="max-width:420px">
+    <div class="form-row">
+      <label class="form-label">Invitation ID</label>
+      <input class="form-input" type="number" id="inviteId" placeholder="0"/>
+    </div>
+    <button class="btn btn-teal" onclick="claimInvitation()">Claim invitation</button>
+  </div>
+</div>
+
+<!-- Admin -->
+<div id="page-admin" class="page">
+  <div class="page-heading">Admin</div>
+  <p class="page-sub">Platform-level controls. Requires contract admin wallet.</p>
+  <div class="g2" style="max-width:800px;gap:20px">
+    <div class="card">
+      <div class="syne mb4" style="font-weight:700">Suspend / Revoke Organization</div>
+      <div class="form-row">
+        <label class="form-label">Organization ID</label>
+        <input class="form-input" type="number" id="adminOrgId" placeholder="1"/>
+      </div>
+      <div class="flex gap2">
+        <button class="btn btn-outline btn-sm" onclick="adminSetOrg(true)">Activate</button>
+        <button class="btn btn-danger btn-sm" onclick="adminSetOrg(false)">Deactivate</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="syne mb4" style="font-weight:700">Revoke Pass</div>
+      <div class="form-row">
+        <label class="form-label">Pass ID</label>
+        <input class="form-input" type="number" id="adminPassId" placeholder="0"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Reason</label>
+        <input class="form-input" id="adminReason" placeholder="Reason"/>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="adminRevoke()">Revoke pass</button>
+    </div>
+    <div class="card">
+      <div class="syne mb4" style="font-weight:700">Platform Controls</div>
+      <div class="flex gap2 mb4">
+        <button class="btn btn-outline btn-sm" onclick="setPaused(false)">Unpause</button>
+        <button class="btn btn-danger btn-sm" onclick="setPaused(true)">Pause platform</button>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Withdraw fees — token address (0x0 = BOT)</label>
+        <input class="form-input" id="feeToken" placeholder="0x0000…0000"/>
+      </div>
+      <button class="btn btn-teal btn-sm" onclick="withdrawFees()">Withdraw platform fees</button>
+    </div>
+    <div class="card">
+      <div class="syne mb4" style="font-weight:700">Transfer Admin</div>
+      <div class="form-row">
+        <label class="form-label">New admin address</label>
+        <input class="form-input" id="newAdmin" placeholder="0x…"/>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="initAdminTransfer()">Initiate transfer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modals ──────────────────────────────────────── -->
+
+<!-- Create Plan Modal -->
+<div class="overlay" id="planModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Create membership plan</div>
+      <button class="modal-x" onclick="closeM('planModal')">✕</button>
+    </div>
+    <input type="hidden" id="planOrgId"/>
+    <div class="form-row">
+      <label class="form-label">Plan name</label>
+      <input class="form-input" id="pName" placeholder="Core Member"/>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Description</label>
+      <textarea class="form-input" id="pDesc" placeholder="What does this plan include?" style="min-height:60px"></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Benefits (comma-separated)</label>
+      <input class="form-input" id="pBenefits" placeholder="Forum access, Monthly calls, Discord role"/>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Plan type</label>
+      <select class="form-input" id="pType" onchange="onPlanTypeChange()">
+        <option value="0">Paid</option>
+        <option value="1">Free</option>
+        <option value="2">Invitation only</option>
+      </select>
+    </div>
+    <div id="pPriceSection">
+      <div class="form-row">
+        <label class="form-label">Currency</label>
+        <select class="form-input" id="pCurrency" onchange="onCurrencyChange()">
+          <option value="0">BOT (native)</option>
+          <option value="1">ERC-20 token</option>
+        </select>
+      </div>
+      <div class="form-row" id="pTokenRow" style="display:none">
+        <label class="form-label">Token contract address</label>
+        <input class="form-input" id="pToken" placeholder="0x…"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Price (in smallest unit, e.g. wei)</label>
+        <input class="form-input" type="number" id="pPrice" placeholder="1000000000000000000"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Duration (days, 0 = lifetime)</label>
+      <input class="form-input" type="number" id="pDuration" placeholder="365"/>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Max members (0 = unlimited)</label>
+      <input class="form-input" type="number" id="pMax" placeholder="0"/>
+    </div>
+    <div class="flex gap3 mt2">
+      <button class="btn btn-violet" onclick="createPlan()">Create plan</button>
+      <button class="btn btn-outline" onclick="closeM('planModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invite Modal -->
+<div class="overlay" id="inviteModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Create invitation</div>
+      <button class="modal-x" onclick="closeM('inviteModal')">✕</button>
+    </div>
+    <input type="hidden" id="invitePlanId"/>
+    <div class="form-row">
+      <label class="form-label">Invitee wallet address</label>
+      <input class="form-input" id="inviteeAddr" placeholder="0x…"/>
+    </div>
+    <div class="flex gap3 mt2">
+      <button class="btn btn-violet" onclick="createInvitation()">Send invitation</button>
+      <button class="btn btn-outline" onclick="closeM('inviteModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pass Action Modal -->
+<div class="overlay" id="passActionModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="passActionTitle">Pass action</div>
+      <button class="modal-x" onclick="closeM('passActionModal')">✕</button>
+    </div>
+    <input type="hidden" id="passActionId"/>
+    <div id="passActionBody"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ── Script ──────────────────────────────────────── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+<script>
+// ── Config ────────────────────────────────────────
+const CFG = {
+  CONTRACT_ADDRESS: "0x0000000000000000000000000000000000000000",
+  CHAIN_ID:   "0x1",
+  CHAIN_NAME: "BOT Chain",
+  RPC_URL:    "https://rpc.botchain.example",
+  EXPLORER:   "https://explorer.botchain.example",
+  ZERO_ADDR:  "0x0000000000000000000000000000000000000000"
+};
+
+const ABI = [
+  "function registerOrg(string,string,string,string) external returns (uint256)",
+  "function updateOrg(uint256,string,string,string,string) external",
+  "function orgs(uint256) external view returns (string,string,string,string,address,bool,bool,uint40,uint256)",
+  "function orgCount() external view returns (uint256)",
+  "function getOwnerOrgs(address) external view returns (uint256[])",
+  "function getOrgPlans(uint256) external view returns (uint256[])",
+  "function getOrgPasses(uint256) external view returns (uint256[])",
+  "function createPlan(uint256,string,string,string,uint8,uint8,address,uint256,uint32,uint32) external returns (uint256)",
+  "function plans(uint256) external view returns (uint256,string,string,string,uint8,uint8,address,uint256,uint32,uint32,uint32,bool,uint40)",
+  "function planCount() external view returns (uint256)",
+  "function purchaseMembership(uint256) external payable returns (uint256)",
+  "function renewMembership(uint256) external payable",
+  "function createInvitation(uint256,address) external returns (uint256)",
+  "function claimInvitation(uint256) external returns (uint256)",
+  "function invitations(uint256) external view returns (uint256,address,uint40,bool)",
+  "function suspendPass(uint256) external",
+  "function unsuspendPass(uint256) external",
+  "function revokePass(uint256,string) external",
+  "function adminRevokePass(uint256,string) external",
+  "function passes(uint256) external view returns (uint256,uint256,address,uint8,uint40,uint40,uint40,uint40,string,bool)",
+  "function passCount() external view returns (uint256)",
+  "function getHolderPasses(address) external view returns (uint256[])",
+  "function isActiveMember(address,uint256) external view returns (bool)",
+  "function isOrgMember(address,uint256) external view returns (bool,uint256)",
+  "function getPassStatus(uint256) external view returns (uint8)",
+  "function getHolderPassForPlan(address,uint256) external view returns (bool,uint256)",
+  "function withdrawOrgRevenue(uint256,address) external",
+  "function withdrawTreasury(address) external",
+  "function orgWithdrawable(uint256,address) external view returns (uint256)",
+  "function setOrgActive(uint256,bool) external",
+  "function setPaused(bool) external",
+  "function initiateAdminTransfer(address) external",
+  "function acceptAdminTransfer() external",
+  "function deactivatePlan(uint256) external"
+];
+
+// ── State ─────────────────────────────────────────
+let provider, signer, contract, userAddr;
+let cachedOrgs = [];
+let currentOrgId = null;
+
+const PLAN_TYPES = ["Paid","Free","Invite only"];
+const PASS_STATUS = ["Active","Expired","Suspended","Revoked"];
+const STATUS_CHIPS = ["chip-green","chip-amber","chip-red","chip-muted"];
+const STATUS_DOTS  = ["dot-active","dot-expired","dot-suspended","dot-revoked"];
+
+// ── Wallet ─────────────────────────────────────────
+async function connectWallet() {
+  if (!window.ethereum) return toast("No wallet detected","err");
+  try {
+    provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send("eth_requestAccounts",[]);
+    signer   = await provider.getSigner();
+    userAddr = await signer.getAddress();
+    contract = new ethers.Contract(CFG.CONTRACT_ADDRESS, ABI, signer);
+    document.getElementById("wAddr").textContent = short(userAddr);
+    document.getElementById("wDot").classList.add("on");
+    toast("Wallet connected","ok");
+    refreshPage();
+  } catch(e){ toast(e.message,"err"); }
+}
+async function connectAndGo(){ await connectWallet(); if(userAddr) showApp("directory"); }
+function needWallet(){ if(!signer){ toast("Connect wallet first","err"); return false; } return true; }
+
+// ── Navigation ─────────────────────────────────────
+let curPage = "landing";
+function show(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("page-"+id).classList.add("active");
+  document.querySelector(`[data-p="${id}"]`)?.classList.add("active");
+  curPage = id;
+  window.scrollTo(0,0);
+  onEnter(id);
+}
+function showApp(page){
+  document.getElementById("topbar").style.display = "";
+  show(page||"directory");
+}
+function onEnter(id){
+  if(id==="directory") loadDirectory();
+  if(id==="my-passes") loadMyPasses();
+  if(id==="org-dash")  loadOrgDash();
+}
+function refreshPage(){ if(curPage!=="landing") onEnter(curPage); }
+
+// ── Directory ──────────────────────────────────────
+async function loadDirectory(){
+  if(!contract){ return; }
+  const el = document.getElementById("directoryList");
+  el.innerHTML = `<p class="text-sm text-muted">Loading…</p>`;
+  try {
+    const count = Number(await contract.orgCount());
+    cachedOrgs = [];
+    for(let i=1; i<=count; i++){
+      const o = await contract.orgs(i);
+      if(!o[5]) continue; // exists
+      const planIds = await contract.getOrgPlans(i);
+      const passIds = await contract.getOrgPasses(i);
+      cachedOrgs.push({ id:i, name:o[0], desc:o[1], logo:o[2], web:o[3], active:o[6], planCount:planIds.length, memberCount:passIds.length });
+    }
+    renderDirectory(cachedOrgs);
+  } catch(e){ el.innerHTML = `<div class="empty text-sm" style="color:var(--red)">${e.message}</div>`; }
+}
+function renderDirectory(list){
+  const el = document.getElementById("directoryList");
+  if(!list.length){ el.innerHTML = `<div class="empty"><div class="empty-ico">◫</div>No organizations yet</div>`; return; }
+  el.innerHTML = list.map(o=>`
+    <div class="org-card mb3" onclick="viewOrg(${o.id})">
+      <div class="org-logo">${o.name.charAt(0)}</div>
+      <div class="org-info">
+        <h4>${o.name}</h4>
+        <p>${truncate(o.desc,60)}</p>
+      </div>
+      <div class="org-meta">
+        <div class="org-meta-num">${o.memberCount}</div>
+        <div class="org-meta-label">members</div>
+        <div class="mt2"><span class="chip ${o.active?'chip-green':'chip-muted'}">${o.active?"Active":"Inactive"}</span></div>
+      </div>
+    </div>`).join("");
+}
+function filterOrgs(){
+  const q = document.getElementById("orgSearch").value.toLowerCase();
+  renderDirectory(q ? cachedOrgs.filter(o=>o.name.toLowerCase().includes(q)) : cachedOrgs);
+}
+async function viewOrg(orgId){
+  currentOrgId = orgId;
+  show("org-detail");
+  const el = document.getElementById("orgDetailContent");
+  el.innerHTML = `<p class="text-sm text-muted">Loading…</p>`;
+  try {
+    const [o, planIds] = await Promise.all([contract.orgs(orgId), contract.getOrgPlans(orgId)]);
+    let plansHTML = "";
+    for(const pid of planIds){
+      const p = await contract.plans(pid);
+      if(!p[11]) continue; // inactive
+      const price = Number(p[7]);
+      const ptype = Number(p[4]);
+      const dur   = Number(p[8]);
+      const curr  = Number(p[5])==0?"BOT":"Token";
+      const priceStr = ptype===0 ? `${ethers.formatEther(BigInt(price))} ${curr}` : "Free";
+      const durStr   = dur===0 ? "Lifetime" : `${dur} days`;
+      const slots    = Number(p[9])===0 ? "Unlimited" : `${Number(p[10])}/${Number(p[9])}`;
+      plansHTML += `
+        <div class="plan-card">
+          <div class="flex aic jb mb3">
+            <div class="plan-name">${p[1]}</div>
+            <span class="chip chip-violet">${PLAN_TYPES[ptype]}</span>
+          </div>
+          <div class="plan-price">${priceStr} <span>/ ${durStr}</span></div>
+          <div class="plan-benefits">${p[3]||p[2]}</div>
+          <div class="text-sm text-muted mb4">Slots: ${slots}</div>
+          ${renderJoinBtn(pid, ptype, Number(p[7]), Number(p[5]), p[6])}
+        </div>`;
+    }
+    el.innerHTML = `
+      <div class="flex aic gap4 mb4">
+        <div class="org-logo" style="width:56px;height:56px;font-size:1.3rem">${o[0].charAt(0)}</div>
+        <div>
+          <div class="syne" style="font-size:1.4rem;font-weight:800">${o[0]}</div>
+          <div class="text-muted text-sm">${o[3]||""}</div>
+        </div>
+        <span class="chip ${o[6]?'chip-green':'chip-muted'} ml-auto">${o[6]?"Active":"Inactive"}</span>
+      </div>
+      <p class="text-muted text-sm mb4">${o[1]}</p>
+      <div class="divider"></div>
+      <div class="syne mb4" style="font-weight:700;font-size:1rem">Membership Plans</div>
+      <div class="g3">${plansHTML||`<p class="text-sm text-muted">No active plans</p>`}</div>`;
+  } catch(e){ el.innerHTML = `<div class="text-sm" style="color:var(--red)">${e.message}</div>`; }
+}
+
+function renderJoinBtn(planId, ptype, price, currency, tokenAddr){
+  if(ptype===2) return `<button class="btn btn-outline btn-sm w-full" disabled>Invitation only</button>`;
+  if(ptype===1) return `<button class="btn btn-teal btn-sm w-full" onclick="joinFree(${planId})">Claim free pass</button>`;
+  return `<button class="btn btn-violet btn-sm w-full" onclick="purchasePlan(${planId},${price},${currency},'${tokenAddr}')">Purchase membership</button>`;
+}
+
+// ── Purchase / Join ────────────────────────────────
+async function joinFree(planId){
+  if(!needWallet()) return;
+  try {
+    const tx = await contract.purchaseMembership(planId,{value:0n});
+    await tx.wait(); toast("Pass claimed!","ok"); loadMyPasses();
+  } catch(e){ toast(e.reason||e.message,"err"); }
+}
+async function purchasePlan(planId, price, currency, tokenAddr){
+  if(!needWallet()) return;
+  try {
+    if(currency===1 && tokenAddr && tokenAddr!==CFG.ZERO_ADDR){
+      // ERC20 — need approval first
+      const erc20 = new ethers.Contract(tokenAddr,["function approve(address,uint256) external returns (bool)"],signer);
+      const appTx = await erc20.approve(CFG.CONTRACT_ADDRESS, BigInt(price));
+      toast("Approving token…","ok");
+      await appTx.wait();
+      const tx = await contract.purchaseMembership(planId);
+      await tx.wait();
+    } else {
+      const tx = await contract.purchaseMembership(planId,{value:BigInt(price)});
+      await tx.wait();
+    }
+    toast("Membership purchased!","ok"); loadMyPasses();
+  } catch(e){ toast(e.reason||e.message,"err"); }
+}
+
+// ── My Passes ──────────────────────────────────────
+async function loadMyPasses(){
+  if(!needWallet()) return;
+  const el = document.getElementById("myPassesContent");
+  el.innerHTML = `<p class="text-sm text-muted">Loading…</p>`;
+  try {
+    const ids = await contract.getHolderPasses(userAddr);
+    if(!ids.length){ el.innerHTML = `<div class="empty"><div class="empty-ico">⬡</div>No passes yet — browse organizations to get started</div>`; return; }
+    let html = `<div class="g2">`;
+    for(const id of ids){
+      const pass = await contract.passes(id);
+      const liveStatus = await contract.getPassStatus(id);
+      const orgData = await contract.orgs(Number(pass[0]));
+      const planData = await contract.plans(Number(pass[1]));
+      html += renderPassCard(id, pass, liveStatus, orgData, planData);
+    }
+    html += `</div>`;
+    el.innerHTML = html;
+  } catch(e){ el.innerHTML = `<div class="empty text-sm" style="color:var(--red)">${e.message}</div>`; }
+}
+
+function renderPassCard(id, pass, liveStatus, org, plan){
+  const status = Number(liveStatus);
+  const statusName = PASS_STATUS[status];
+  const dotClass   = STATUS_DOTS[status];
+  const expiry     = Number(pass[5])===0 ? "Lifetime" : new Date(Number(pass[5])*1000).toLocaleDateString();
+  const cardClass  = ["status-active","status-expired","status-suspended","status-revoked"][status];
+  return `
+    <div class="pass-card ${cardClass}">
+      <div>
+        <div class="pass-org">${org[0]}</div>
+        <div class="pass-plan">${plan[1]}</div>
+        <div class="pass-holder">${short(pass[2])}</div>
+      </div>
+      <div class="pass-meta">
+        <div>
+          <div class="pass-expiry">${expiry}</div>
+          <div class="text-sm text-muted mt2">Pass #${id}</div>
+        </div>
+        <div class="flex aic gap2">
+          <div class="pass-status-dot ${dotClass}"></div>
+          <span class="text-sm" style="color:var(--text-muted)">${statusName}</span>
+          ${status===0&&Number(plan[8])>0?`<button class="btn btn-outline btn-sm" onclick="renewPass(${id},${plan[7]},${plan[5]},${plan[6]=='0x0000000000000000000000000000000000000000'?'null':'"'+plan[6]+'"'})">Renew</button>`:""}
+        </div>
+      </div>
+    </div>`;
+}
+
+async function renewPass(passId, price, currency, tokenAddr){
+  if(!needWallet()) return;
+  try {
+    if(currency===1 && tokenAddr){
+      const erc20 = new ethers.Contract(tokenAddr,["function approve(address,uint256) external returns (bool)"],signer);
+      await (await erc20.approve(CFG.CONTRACT_ADDRESS, BigInt(price))).wait();
+      await (await contract.renewMembership(passId)).wait();
+    } else {
+      await (await contract.renewMembership(passId,{value:BigInt(price)})).wait();
+    }
+    toast("Membership renewed","ok"); loadMyPasses();
+  } catch(e){ toast(e.reason||e.message,"err"); }
+}
+
+// ── Org Dashboard ──────────────────────────────────
+async function loadOrgDash(){
+  if(!needWallet()) return;
+  const el = document.getElementById("orgDashContent");
+  el.innerHTML = `<p class="text-sm text-muted">Loading…</p>`;
+  try {
+    const myOrgIds = await contract.getOwnerOrgs(userAddr);
+    if(!myOrgIds.length){
+      el.innerHTML = `<div class="empty"><div class="empty-ico">⬡</div>No organization registered<br/><button class="btn btn-violet mt3" onclick="show('create-org')">Register organization</button></div>`;
+      return;
+    }
+    // Show first org (can expand to multi-org)
+    const orgId = Number(myOrgIds[myOrgIds.length-1]);
+    const [o, planIds, passIds] = await Promise.all([
+      contract.orgs(orgId),
+      contract.getOrgPlans(orgId),
+      contract.getOrgPasses(orgId)
+    ]);
+
+    // Revenue (BOT)
+    const withdrawable = await contract.orgWithdrawable(orgId, CFG.ZERO_ADDR);
+
+    let plansRows = "";
+    for(const pid of planIds){
+      const p = await contract.plans(pid);
+      plansRows += `<tr>
+        <td>${p[1]}</td>
+        <td>${PLAN_TYPES[Number(p[4])]}</td>
+        <td>${Number(p[10])} / ${Number(p[9])===0?"∞":Number(p[9])}</td>
+        <td>${Number(p[8])===0?"Lifetime":Number(p[8])+"d"}</td>
+        <td><span class="chip ${p[11]?'chip-green':'chip-muted'}">${p[11]?"Active":"Inactive"}</span></td>
+        <td>
+          <button class="btn btn-outline btn-sm" onclick="openInviteModal(${pid})">Invite</button>
+          <button class="btn btn-danger btn-sm" onclick="deactivatePlan(${pid})">Deactivate</button>
+        </td>
+      </tr>`;
+    }
+
+    let memberRows = "";
+    const recent = passIds.slice(-15).reverse();
+    for(const pid of recent){
+      const pass = await contract.passes(Number(pid));
+      const liveStatus = await contract.getPassStatus(Number(pid));
+      const status = Number(liveStatus);
+      memberRows += `<tr>
+        <td>${Number(pid)}</td>
+        <td style="font-family:monospace;font-size:.75rem">${pass[2]}</td>
+        <td><span class="chip ${STATUS_CHIPS[status]}">${PASS_STATUS[status]}</span></td>
+        <td>${Number(pass[5])===0?"Lifetime":new Date(Number(pass[5])*1000).toLocaleDateString()}</td>
+        <td>
+          ${status===0?`<button class="btn btn-outline btn-sm" onclick="suspendMember(${pid})">Suspend</button>`:""}
+          ${status===2?`<button class="btn btn-teal btn-sm" onclick="unsuspendMember(${pid})">Unsuspend</button>`:""}
+          ${status!==3?`<button class="btn btn-danger btn-sm" onclick="revokeModal(${pid})">Revoke</button>`:""}
+        </td>
+      </tr>`;
+    }
+
+    el.innerHTML = `
+      <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat"><div class="stat-val">${planIds.length}</div><div class="stat-label">Plans</div></div>
+        <div class="stat"><div class="stat-val">${passIds.length}</div><div class="stat-label">Passes issued</div></div>
+        <div class="stat"><div class="stat-val">${ethers.formatEther(withdrawable)}</div><div class="stat-label">BOT withdrawable</div></div>
+      </div>
+
+      <div class="flex aic jb mb4">
+        <div class="syne" style="font-weight:700">Membership Plans</div>
+        <div class="flex gap2">
+          <button class="btn btn-violet btn-sm" onclick="openPlanModal(${orgId})">Add plan</button>
+          <button class="btn btn-teal btn-sm" onclick="withdrawRevenue(${orgId})">Withdraw revenue</button>
+        </div>
+      </div>
+      <div class="card mb4" style="padding:0;overflow:hidden">
+        <table class="tbl">
+          <thead><tr><th>Plan</th><th>Type</th><th>Members</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>${plansRows||`<tr><td colspan="6" class="text-muted text-sm" style="padding:20px">No plans yet</td></tr>`}</tbody>
+        </table>
+      </div>
+
+      <div class="flex aic jb mb4">
+        <div class="syne" style="font-weight:700">Recent Members</div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <table class="tbl">
+          <thead><tr><th>Pass #</th><th>Holder</th><th>Status</th><th>Expires</th><th>Actions</th></tr></thead>
+          <tbody>${memberRows||`<tr><td colspan="5" class="text-muted text-sm" style="padding:20px">No members yet</td></tr>`}</tbody>
+        </table>
+      </div>`;
+  } catch(e){ el.innerHTML = `<div class="empty text-sm" style="color:var(--red)">${e.message}</div>`; }
+}
+
+// ── Register Org ───────────────────────────────────
+async function registerOrg(){
+  if(!needWallet()) return;
+  const name = document.getElementById("oName").value.trim();
+  if(!name) return toast("Name required","err");
+  try {
+    const tx = await contract.registerOrg(name, document.getElementById("oDesc").value, document.getElementById("oLogo").value, document.getElementById("oWeb").value);
+    await tx.wait(); toast("Organization registered","ok"); show("org-dash");
+  } catch(e){ toast(e.reason||e.message,"err"); }
+}
+
+// ── Plans ──────────────────────────────────────────
+function openPlanModal(orgId){
+  document.getElementById("planOrgId").value = orgId;
+  document.getElementById("pName").value="";
+  document.getElementById("pDesc").value="";
+  document.getElementById("pBenefits").value="";
+  document.getElementById("pPrice").value="";
+  document.getElementById("pDuration").value="365";
+  document.getElementById("pMax").value="0";
+  openM("planModal");
+}
+function onPlanTypeChange(){
+  const v = document.getElementById("pType").value;
+  document.getElementById("pPriceSection").style.display = v==="0"?"":"none";
+}
+function onCurrencyChange(){
+  document.getElementById("pTokenRow").style.display = document.getElementById("pCurrency").value==="1"?"":"none";
+}
+async function createPlan(){
+  if(!needWallet()) return;
+  const orgId = parseInt(document.getElementById("planOrgId").value);
+  const name  = document.getElementById("pName").value.trim();
+  if(!name) return toast("Plan name required","err");
+  const ptype = parseInt(document.getElementById("pType").value);
+  const curr  = parseInt(document.getElementById("pCurrency").value||"0");
+  const token = curr===1 ? document.getElementById("pToken").value.trim() : CFG.ZERO_ADDR;
+  const price = ptype===0 ? BigInt(document.getElementById("pPrice").value||"0") : 0n;
+  const dur   = parseInt(document.getElementById("pDuration").value||"0");
+  const max   = parseInt(document.getElementById("pMax").value||"0");
+  try {
+    const tx = await contract.createPlan(orgId, name, document.getElementById("pDesc").value, document.getElementById("pBenefits").value, ptype, curr, token, price, dur, max);
+    await tx.wait(); toast("Plan created","ok"); closeM("planModal"); loadOrgDash();
+  } catch(e){ toast(e.reason||e.message,"err"); }
+}
+async function deactivatePlan(planId){
+  if(!needWallet()) return;
+  try { await (await contract.deactivatePlan(planId)).wait(); toast("Plan deactivated","ok"); loadOrgDash(); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+
+// ── Invitations ────────────────────────────────────
+function openInviteModal(planId){ document.getElementById("invitePlanId").value=planId; document.getElementById("inviteeAddr").value=""; openM("inviteModal"); }
+async function createInvitation(){
+  if(!needWallet()) return;
+  const planId  = parseInt(document.getElementById("invitePlanId").value);
+  const invitee = document.getElementById("inviteeAddr").value.trim();
+  if(!ethers.isAddress(invitee)) return toast("Invalid address","err");
+  try { await (await contract.createInvitation(planId,invitee)).wait(); toast("Invitation created","ok"); closeM("inviteModal"); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+async function claimInvitation(){
+  if(!needWallet()) return;
+  const id = parseInt(document.getElementById("inviteId").value);
+  try { await (await contract.claimInvitation(id)).wait(); toast("Pass claimed!","ok"); loadMyPasses(); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+
+// ── Pass management ────────────────────────────────
+async function suspendMember(passId){
+  if(!needWallet()) return;
+  try { await (await contract.suspendPass(passId)).wait(); toast("Pass suspended","ok"); loadOrgDash(); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+async function unsuspendMember(passId){
+  if(!needWallet()) return;
+  try { await (await contract.unsuspendPass(passId)).wait(); toast("Pass unsuspended","ok"); loadOrgDash(); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+function revokeModal(passId){
+  document.getElementById("passActionId").value=passId;
+  document.getElementById("passActionTitle").textContent="Revoke pass #"+passId;
+  document.getElementById("passActionBody").innerHTML=`
+    <p class="text-sm text-muted mb4">This permanently revokes the membership pass. The holder will lose access immediately.</p>
+    <div class="form-row"><label class="form-label">Reason</label><input class="form-input" id="revokeReason" placeholder="Reason for revocation"/></div>
+    <div class="flex gap2 mt2">
+      <button class="btn btn-danger" onclick="confirmRevoke()">Revoke pass</button>
+      <button class="btn btn-outline" onclick="closeM('passActionModal')">Cancel</button>
+    </div>`;
+  openM("passActionModal");
+}
+async function confirmRevoke(){
+  if(!needWallet()) return;
+  const passId = parseInt(document.getElementById("passActionId").value);
+  const reason = document.getElementById("revokeReason").value.trim();
+  try { await (await contract.revokePass(passId,reason)).wait(); toast("Pass revoked","ok"); closeM("passActionModal"); loadOrgDash(); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+
+// ── Revenue withdrawal ─────────────────────────────
+async function withdrawRevenue(orgId){
+  if(!needWallet()) return;
+  try { await (await contract.withdrawOrgRevenue(orgId, CFG.ZERO_ADDR)).wait(); toast("Revenue withdrawn","ok"); loadOrgDash(); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+
+// ── Verification ───────────────────────────────────
+async function verifyMembership(){
+  if(!needWallet()) return;
+  const addr   = document.getElementById("vAddr").value.trim();
+  const planId = parseInt(document.getElementById("vPlanId").value);
+  if(!ethers.isAddress(addr)) return toast("Invalid address","err");
+  const el = document.getElementById("verifyResult");
+  el.style.display="block";
+  try {
+    const [active, planData, passInfo] = await Promise.all([
+      contract.isActiveMember(addr,planId),
+      contract.plans(planId),
+      contract.getHolderPassForPlan(addr,planId)
+    ]);
+    if(active){
+      const passId = passInfo[0] ? Number(passInfo[1]) : null;
+      const liveStatus = passId!==null ? await contract.getPassStatus(passId) : null;
+      const expiry = passId!==null ? (await contract.passes(passId))[5] : 0n;
+      el.innerHTML = `
+        <div class="chip chip-green" style="font-size:.85rem;padding:5px 14px;margin-bottom:16px">✓ Active member</div>
+        <div class="pass-card status-active">
+          <div>
+            <div class="pass-org">PLAN #${planId}</div>
+            <div class="pass-plan">${planData[1]}</div>
+            <div class="pass-holder">${short(addr)}</div>
+          </div>
+          <div class="pass-meta">
+            <div class="pass-expiry">${Number(expiry)===0?"Lifetime":new Date(Number(expiry)*1000).toLocaleDateString()}</div>
+            <div class="flex aic gap2"><div class="pass-status-dot dot-active"></div><span class="text-sm text-muted">Active</span></div>
+          </div>
+        </div>`;
+    } else {
+      el.innerHTML = `
+        <div class="chip chip-red" style="font-size:.85rem;padding:5px 14px;margin-bottom:16px">✗ Not an active member</div>
+        <p class="text-sm text-muted">This wallet does not hold an active, non-expired pass for plan #${planId}.</p>`;
+    }
+  } catch(e){ el.innerHTML = `<p class="text-sm" style="color:var(--red)">${e.message}</p>`; }
+}
+
+// ── Admin ──────────────────────────────────────────
+async function adminSetOrg(active){
+  if(!needWallet()) return;
+  const id = parseInt(document.getElementById("adminOrgId").value);
+  try { await (await contract.setOrgActive(id,active)).wait(); toast(`Org ${active?"activated":"deactivated"}`,active?"ok":"err"); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+async function adminRevoke(){
+  if(!needWallet()) return;
+  const id = parseInt(document.getElementById("adminPassId").value);
+  const reason = document.getElementById("adminReason").value.trim();
+  try { await (await contract.adminRevokePass(id,reason)).wait(); toast("Pass revoked","ok"); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+async function setPaused(state){
+  if(!needWallet()) return;
+  try { await (await contract.setPaused(state)).wait(); toast(`Platform ${state?"paused":"unpaused"}`,state?"err":"ok"); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+async function withdrawFees(){
+  if(!needWallet()) return;
+  const token = document.getElementById("feeToken").value.trim()||CFG.ZERO_ADDR;
+  try { await (await contract.withdrawTreasury(token)).wait(); toast("Fees withdrawn","ok"); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+async function initAdminTransfer(){
+  if(!needWallet()) return;
+  const addr = document.getElementById("newAdmin").value.trim();
+  if(!ethers.isAddress(addr)) return toast("Invalid address","err");
+  try { await (await contract.initiateAdminTransfer(addr)).wait(); toast("Transfer initiated","ok"); }
+  catch(e){ toast(e.reason||e.message,"err"); }
+}
+
+// ── Utilities ──────────────────────────────────────
+function short(a){ return a?a.slice(0,6)+"…"+a.slice(-4):""; }
+function truncate(s,n){ return s&&s.length>n?s.slice(0,n)+"…":s; }
+function toast(msg,type="ok"){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.className=`show ${type}`;
+  setTimeout(()=>{ el.className=""; },3000);
+}
+function openM(id){ document.getElementById(id).classList.add("open"); }
+function closeM(id){ document.getElementById(id).classList.remove("open"); }
+document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{ if(e.target===o) o.classList.remove("open"); }));
+
+window.addEventListener("load",async()=>{
+  if(window.ethereum){
+    const accounts = await window.ethereum.request({method:"eth_accounts"});
+    if(accounts.length) connectWallet();
+  }
+});
+</script>
+</body>
+</html>
