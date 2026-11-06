@@ -6,7 +6,7 @@
 <title>Access — Onchain Membership</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 /* ── Tokens ───────────────────────────────────────── */
 :root {
@@ -30,6 +30,7 @@
   --t:          .16s ease;
   --syne:       'Syne', system-ui, sans-serif;
   --plex:       'IBM Plex Sans', system-ui, sans-serif;
+  --mono:       'IBM Plex Mono', ui-monospace, monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px}
@@ -52,7 +53,7 @@ input,select,textarea{font-family:inherit}
   font-family:var(--syne);font-size:1.1rem;font-weight:700;
   color:var(--text);letter-spacing:-.01em;
   margin-right:32px;display:flex;align-items:center;gap:8px;
-  flex-shrink:0;
+  flex-shrink:0;cursor:pointer;
 }
 .logo-gem{
   width:20px;height:20px;
@@ -74,6 +75,7 @@ input,select,textarea{font-family:inherit}
 .topbar-wallet{
   margin-left:auto;flex-shrink:0;display:flex;align-items:center;gap:10px;
 }
+.net-badge{font-size:.7rem;color:var(--text-muted);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;white-space:nowrap}
 .wallet-btn{
   display:flex;align-items:center;gap:7px;
   background:var(--surface);
@@ -87,6 +89,7 @@ input,select,textarea{font-family:inherit}
 .wallet-btn:hover{border-color:var(--violet);color:var(--text)}
 .w-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dim)}
 .w-dot.on{background:var(--green)}
+.w-dot.warn{background:var(--amber)}
 
 /* ── Pages ────────────────────────────────────────── */
 .page{display:none;padding:40px 32px 72px;max-width:1080px;margin:0 auto}
@@ -103,7 +106,7 @@ input,select,textarea{font-family:inherit}
 
 /* ── Components ───────────────────────────────────── */
 .btn{
-  display:inline-flex;align-items:center;gap:7px;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
   padding:9px 20px;border-radius:var(--r-sm);
   font-size:.83rem;font-weight:600;font-family:var(--plex);
   border:none;white-space:nowrap;
@@ -129,6 +132,7 @@ input,select,textarea{font-family:inherit}
 
 .form-row{margin-bottom:16px}
 .form-label{display:block;font-size:.78rem;font-weight:500;color:var(--text-muted);margin-bottom:5px}
+.form-hint{font-size:.72rem;color:var(--text-dim);margin-top:4px}
 .form-input{
   width:100%;background:var(--surface2);
   border:1px solid var(--border);border-radius:var(--r-sm);
@@ -175,8 +179,8 @@ select.form-input option{background:var(--surface2)}
 
 .pass-org{font-family:var(--syne);font-size:.8rem;font-weight:600;color:var(--text-muted);letter-spacing:.04em}
 .pass-plan{font-family:var(--syne);font-size:1.3rem;font-weight:700;line-height:1.1;margin:6px 0 2px}
-.pass-holder{font-size:.75rem;color:var(--text-muted);font-family:'IBM Plex Mono', monospace}
-.pass-meta{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.pass-holder{font-size:.75rem;color:var(--text-muted);font-family:var(--mono)}
+.pass-meta{display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:10px;flex-wrap:wrap}
 .pass-expiry{font-size:.72rem;color:var(--text-muted)}
 .pass-status-dot{
   width:9px;height:9px;border-radius:50%;flex-shrink:0;
@@ -195,12 +199,15 @@ select.form-input option{background:var(--surface2)}
 }
 .org-card:hover{border-color:var(--border2)}
 .org-logo{
+  position:relative;overflow:hidden;
   width:46px;height:46px;border-radius:var(--r-sm);
   background:var(--violet-dim);border:1px solid var(--border2);
   display:flex;align-items:center;justify-content:center;
   font-family:var(--syne);font-size:1.1rem;font-weight:700;
   color:var(--violet);flex-shrink:0;
 }
+.org-logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.org-info{min-width:0}
 .org-info h4{font-family:var(--syne);font-size:.95rem;font-weight:600;margin-bottom:2px}
 .org-info p{font-size:.78rem;color:var(--text-muted)}
 .org-meta{margin-left:auto;text-align:right;flex-shrink:0}
@@ -236,6 +243,7 @@ select.form-input option{background:var(--surface2)}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 
 /* ── Table ────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto}
 .tbl{width:100%;border-collapse:collapse}
 .tbl th{font-size:.72rem;font-weight:600;color:var(--text-dim);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border)}
 .tbl td{font-size:.82rem;padding:11px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
@@ -248,6 +256,7 @@ select.form-input option{background:var(--surface2)}
   backdrop-filter:blur(6px);z-index:200;
   display:flex;align-items:center;justify-content:center;
   opacity:0;pointer-events:none;transition:opacity .2s;
+  padding:16px;
 }
 .overlay.open{opacity:1;pointer-events:all}
 .modal{
@@ -266,7 +275,7 @@ select.form-input option{background:var(--surface2)}
   background:var(--surface2);border:1px solid var(--border2);
   border-radius:var(--r-sm);padding:11px 16px;font-size:.83rem;
   opacity:0;transform:translateY(6px);transition:all .22s ease;pointer-events:none;
-  max-width:300px;
+  max-width:320px;word-break:break-word;
 }
 #toast.show{opacity:1;transform:translateY(0)}
 #toast.ok{border-color:var(--green);color:var(--green)}
@@ -293,13 +302,15 @@ select.form-input option{background:var(--surface2)}
     radial-gradient(ellipse 55% 60% at 70% 50%, rgba(124,92,252,.1) 0%, transparent 65%),
     radial-gradient(ellipse 30% 40% at 10% 80%, rgba(56,217,192,.06) 0%, transparent 55%);
 }
-.hero-left{flex:1;min-width:0}
+.hero-left{flex:1;min-width:0;position:relative}
 .hero-left h1{
   font-family:var(--syne);font-size:clamp(2.4rem,5vw,4rem);font-weight:800;
   line-height:1.05;letter-spacing:-.03em;margin-bottom:20px;
 }
 .hero-left p{font-size:1rem;color:var(--text-muted);max-width:440px;line-height:1.65;margin-bottom:32px}
-.hero-right{flex:0 0 340px}
+.hero-contract{margin-top:20px;font-size:.75rem;color:var(--text-dim)}
+.hero-contract a{font-family:var(--mono);color:var(--text-muted);border-bottom:1px dotted var(--text-dim)}
+.hero-right{flex:0 0 340px;position:relative}
 
 /* Hero pass card (decorative) */
 .hero-pass{
@@ -315,7 +326,7 @@ select.form-input option{background:var(--surface2)}
 .hero-pass-org{font-family:var(--syne);font-size:.75rem;font-weight:600;color:var(--violet);letter-spacing:.05em;margin-bottom:10px}
 .hero-pass-name{font-family:var(--syne);font-size:1.6rem;font-weight:800;line-height:1;margin-bottom:6px}
 .hero-pass-sub{font-size:.8rem;color:var(--text-muted);margin-bottom:24px}
-.hero-pass-addr{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--text-dim)}
+.hero-pass-addr{font-family:var(--mono);font-size:.72rem;color:var(--text-dim)}
 .hero-pass-footer{display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
 .hero-pass-exp{font-size:.72rem;color:var(--text-muted)}
 .hero-pass-status{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--green)}
@@ -324,42 +335,40 @@ select.form-input option{background:var(--surface2)}
 .feature-row{
   display:grid;grid-template-columns:repeat(3,1fr);
   border-top:1px solid var(--border);border-bottom:1px solid var(--border);
-  gap:0;background:var(--border);
+  gap:1px;background:var(--border);
 }
 .feat{background:var(--bg);padding:36px 32px}
 .feat-num{font-family:var(--syne);font-size:.7rem;font-weight:700;color:var(--text-dim);margin-bottom:12px}
 .feat h3{font-family:var(--syne);font-size:1rem;font-weight:700;margin-bottom:8px}
 .feat p{font-size:.83rem;color:var(--text-muted);line-height:1.6}
 
-/* ── QR / Verification card ───────────────────────── */
+/* ── Verification card ────────────────────────────── */
 .verify-card{
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--r);padding:28px;max-width:420px;
-  text-align:center;
-}
-.qr-placeholder{
-  width:160px;height:160px;margin:0 auto 20px;
-  background:var(--surface2);border:1px solid var(--border2);
-  border-radius:var(--r-sm);
-  display:flex;align-items:center;justify-content:center;
-  font-size:3rem;color:var(--text-dim);
 }
 
 /* ── Misc ─────────────────────────────────────────── */
 .empty{text-align:center;padding:48px 24px;color:var(--text-muted);font-size:.87rem}
 .empty-ico{font-size:2rem;margin-bottom:12px}
 .divider{height:1px;background:var(--border);margin:24px 0}
-.flex{display:flex}.aic{align-items:center}.jb{justify-content:space-between}
+.notice{background:var(--violet-dim);border:1px solid var(--border2);border-radius:var(--r-sm);padding:12px 14px;font-size:.82rem;margin-top:14px}
+.flex{display:flex}.aic{align-items:center}.jb{justify-content:space-between}.wrap{flex-wrap:wrap}
 .gap2{gap:8px}.gap3{gap:12px}.gap4{gap:16px}
-.mt2{margin-top:8px}.mt3{margin-top:12px}.mt4{margin-top:16px}.mb4{margin-bottom:16px}
+.mt2{margin-top:8px}.mt3{margin-top:12px}.mt4{margin-top:16px}.mb3{margin-bottom:12px}.mb4{margin-bottom:16px}
+.ml-auto{margin-left:auto}
 .text-muted{color:var(--text-muted)}.text-sm{font-size:.8rem}.text-violet{color:var(--violet)}
+.mono{font-family:var(--mono)}
 .syne{font-family:var(--syne)}
 .w-full{width:100%}
 
 @media(max-width:860px){
   #topbar{padding:0 16px}
+  .topbar-logo{margin-right:12px}
+  .net-badge{display:none}
   .tab{padding:0 12px;font-size:.78rem}
   .page{padding:24px 16px 60px}
+  .lnav{padding:0 16px}
   .hero{flex-direction:column;padding:90px 24px 48px;gap:40px}
   .hero-right{width:100%;flex:none}
   .stat-row{grid-template-columns:1fr 1fr}
@@ -372,7 +381,7 @@ select.form-input option{background:var(--surface2)}
 
 <!-- ── Top bar (shown for app pages) ─────────────── -->
 <div id="topbar" style="display:none">
-  <div class="topbar-logo">
+  <div class="topbar-logo" onclick="goLanding()">
     <div class="logo-gem"></div>
     Access
   </div>
@@ -385,6 +394,7 @@ select.form-input option{background:var(--surface2)}
     <div class="tab" data-p="admin"      onclick="show('admin')">Admin</div>
   </div>
   <div class="topbar-wallet">
+    <div class="net-badge">BOT Chain Testnet</div>
     <div class="wallet-btn" onclick="connectWallet()">
       <div class="w-dot" id="wDot"></div>
       <span id="wAddr">Connect</span>
@@ -413,6 +423,7 @@ select.form-input option{background:var(--surface2)}
         <button class="btn btn-violet" onclick="connectAndGo()">Get started</button>
         <button class="btn btn-outline" onclick="showApp('directory')">Browse organizations</button>
       </div>
+      <div class="hero-contract">BOT Chain Testnet · Contract <a id="contractLink" target="_blank" rel="noopener"></a></div>
     </div>
     <div class="hero-right">
       <div class="hero-pass">
@@ -461,11 +472,11 @@ select.form-input option{background:var(--surface2)}
   </div>
 
   <div id="directoryList">
-    <div class="empty"><div class="empty-ico">◫</div>Connect wallet to browse organizations</div>
+    <p class="text-sm text-muted">Loading…</p>
   </div>
 </div>
 
-<!-- Org Detail (inline, replaces directory when selected) -->
+<!-- Org Detail -->
 <div id="page-org-detail" class="page">
   <button class="btn btn-outline btn-sm mb4" onclick="show('directory')">← Back to directory</button>
   <div id="orgDetailContent"></div>
@@ -497,7 +508,7 @@ select.form-input option{background:var(--surface2)}
   <div class="card" style="max-width:540px">
     <div class="form-row">
       <label class="form-label">Organization name</label>
-      <input class="form-input" id="oName" placeholder="e.g. BOT Builders Collective"/>
+      <input class="form-input" id="oName" maxlength="80" placeholder="e.g. BOT Builders Collective"/>
     </div>
     <div class="form-row">
       <label class="form-label">Description</label>
@@ -525,14 +536,15 @@ select.form-input option{background:var(--surface2)}
       <div class="form-row">
         <label class="form-label">Wallet address</label>
         <input class="form-input" id="vAddr" placeholder="0x…"/>
+        <div class="form-hint"><a href="#" onclick="useMyAddr(event)" class="text-violet">Use my wallet</a></div>
       </div>
       <div class="form-row">
         <label class="form-label">Plan ID</label>
-        <input class="form-input" type="number" id="vPlanId" placeholder="0"/>
+        <input class="form-input" type="number" min="1" id="vPlanId" placeholder="1"/>
       </div>
       <button class="btn btn-violet" onclick="verifyMembership()">Check membership</button>
     </div>
-    <div id="verifyResult" class="verify-card" style="display:none;text-align:left"></div>
+    <div id="verifyResult" class="verify-card" style="display:none"></div>
   </div>
 
   <div class="divider"></div>
@@ -541,7 +553,7 @@ select.form-input option{background:var(--surface2)}
   <div class="card" style="max-width:420px">
     <div class="form-row">
       <label class="form-label">Invitation ID</label>
-      <input class="form-input" type="number" id="inviteId" placeholder="0"/>
+      <input class="form-input" type="number" min="1" id="inviteId" placeholder="1"/>
     </div>
     <button class="btn btn-teal" onclick="claimInvitation()">Claim invitation</button>
   </div>
@@ -551,12 +563,13 @@ select.form-input option{background:var(--surface2)}
 <div id="page-admin" class="page">
   <div class="page-heading">Admin</div>
   <p class="page-sub">Platform-level controls. Requires contract admin wallet.</p>
+  <div id="adminInfo" class="card mb4" style="max-width:800px"><p class="text-sm text-muted">Loading…</p></div>
   <div class="g2" style="max-width:800px;gap:20px">
     <div class="card">
       <div class="syne mb4" style="font-weight:700">Suspend / Revoke Organization</div>
       <div class="form-row">
         <label class="form-label">Organization ID</label>
-        <input class="form-input" type="number" id="adminOrgId" placeholder="1"/>
+        <input class="form-input" type="number" min="1" id="adminOrgId" placeholder="1"/>
       </div>
       <div class="flex gap2">
         <button class="btn btn-outline btn-sm" onclick="adminSetOrg(true)">Activate</button>
@@ -567,7 +580,7 @@ select.form-input option{background:var(--surface2)}
       <div class="syne mb4" style="font-weight:700">Revoke Pass</div>
       <div class="form-row">
         <label class="form-label">Pass ID</label>
-        <input class="form-input" type="number" id="adminPassId" placeholder="0"/>
+        <input class="form-input" type="number" min="0" id="adminPassId" placeholder="0"/>
       </div>
       <div class="form-row">
         <label class="form-label">Reason</label>
@@ -582,7 +595,7 @@ select.form-input option{background:var(--surface2)}
         <button class="btn btn-danger btn-sm" onclick="setPaused(true)">Pause platform</button>
       </div>
       <div class="form-row">
-        <label class="form-label">Withdraw fees — token address (0x0 = BOT)</label>
+        <label class="form-label">Withdraw fees — token address (empty = BOT)</label>
         <input class="form-input" id="feeToken" placeholder="0x0000…0000"/>
       </div>
       <button class="btn btn-teal btn-sm" onclick="withdrawFees()">Withdraw platform fees</button>
@@ -593,7 +606,10 @@ select.form-input option{background:var(--surface2)}
         <label class="form-label">New admin address</label>
         <input class="form-input" id="newAdmin" placeholder="0x…"/>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="initAdminTransfer()">Initiate transfer</button>
+      <div class="flex gap2 wrap">
+        <button class="btn btn-outline btn-sm" onclick="initAdminTransfer()">Initiate transfer</button>
+        <button class="btn btn-teal btn-sm" onclick="acceptAdminTransfer()">Accept transfer</button>
+      </div>
     </div>
   </div>
 </div>
@@ -633,25 +649,27 @@ select.form-input option{background:var(--surface2)}
         <label class="form-label">Currency</label>
         <select class="form-input" id="pCurrency" onchange="onCurrencyChange()">
           <option value="0">BOT (native)</option>
-          <option value="1">ERC-20 token</option>
+          <option value="1">ERC-20 token (e.g. USDT)</option>
         </select>
       </div>
       <div class="form-row" id="pTokenRow" style="display:none">
         <label class="form-label">Token contract address</label>
         <input class="form-input" id="pToken" placeholder="0x…"/>
+        <div class="form-hint">Prefilled with testnet USDT</div>
       </div>
       <div class="form-row">
-        <label class="form-label">Price (in smallest unit, e.g. wei)</label>
-        <input class="form-input" type="number" id="pPrice" placeholder="1000000000000000000"/>
+        <label class="form-label">Price</label>
+        <input class="form-input" type="text" inputmode="decimal" id="pPrice" placeholder="e.g. 5"/>
+        <div class="form-hint">Enter a normal amount (5 = 5 BOT / 5 USDT). Converted using the token's decimals.</div>
       </div>
     </div>
     <div class="form-row">
       <label class="form-label">Duration (days, 0 = lifetime)</label>
-      <input class="form-input" type="number" id="pDuration" placeholder="365"/>
+      <input class="form-input" type="number" min="0" id="pDuration" placeholder="365"/>
     </div>
     <div class="form-row">
       <label class="form-label">Max members (0 = unlimited)</label>
-      <input class="form-input" type="number" id="pMax" placeholder="0"/>
+      <input class="form-input" type="number" min="0" id="pMax" placeholder="0"/>
     </div>
     <div class="flex gap3 mt2">
       <button class="btn btn-violet" onclick="createPlan()">Create plan</button>
@@ -674,8 +692,9 @@ select.form-input option{background:var(--surface2)}
     </div>
     <div class="flex gap3 mt2">
       <button class="btn btn-violet" onclick="createInvitation()">Send invitation</button>
-      <button class="btn btn-outline" onclick="closeM('inviteModal')">Cancel</button>
+      <button class="btn btn-outline" onclick="closeM('inviteModal')">Close</button>
     </div>
+    <div id="inviteResult"></div>
   </div>
 </div>
 
@@ -696,80 +715,161 @@ select.form-input option{background:var(--surface2)}
 <!-- ── Script ──────────────────────────────────────── -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script>
-// ── Config ────────────────────────────────────────
+// ── Config (BOT Chain Testnet) ────────────────────
 const CFG = {
-  CONTRACT_ADDRESS: "0x0000000000000000000000000000000000000000",
-  CHAIN_ID:   "0x1",
-  CHAIN_NAME: "BOT Chain",
-  RPC_URL:    "https://rpc.botchain.example",
-  EXPLORER:   "https://explorer.botchain.example",
-  ZERO_ADDR:  "0x0000000000000000000000000000000000000000"
+  CONTRACT_ADDRESS: "0xCa314f838Fc6f45A2e805c2Fd5Fbd4D365e82Ed3",
+  CHAIN_ID:     968,
+  CHAIN_ID_HEX: "0x3c8",
+  CHAIN_NAME:   "BOT Chain Testnet",
+  RPC_URL:      "https://rpc.bohr.life",
+  EXPLORER:     "https://scan.bohr.life",
+  NATIVE:       { name:"BOT", symbol:"BOT", decimals:18 },
+  USDT:         "0x75edC9335175Fc0552D51D48439F229c10420fe3",
+  ZERO_ADDR:    "0x0000000000000000000000000000000000000000"
 };
 
 const ABI = [
-  "function registerOrg(string,string,string,string) external returns (uint256)",
+  // orgs
+  "function registerOrg(string name,string description,string logoURI,string websiteURL) external returns (uint256)",
   "function updateOrg(uint256,string,string,string,string) external",
-  "function orgs(uint256) external view returns (string,string,string,string,address,bool,bool,uint40,uint256)",
+  "function transferOrgOwnership(uint256,address) external",
+  "function orgs(uint256) external view returns (string name,string description,string logoURI,string websiteURL,address owner,bool exists,bool active,uint40 createdAt,uint256 totalRevenue)",
   "function orgCount() external view returns (uint256)",
   "function getOwnerOrgs(address) external view returns (uint256[])",
   "function getOrgPlans(uint256) external view returns (uint256[])",
   "function getOrgPasses(uint256) external view returns (uint256[])",
-  "function createPlan(uint256,string,string,string,uint8,uint8,address,uint256,uint32,uint32) external returns (uint256)",
-  "function plans(uint256) external view returns (uint256,string,string,string,uint8,uint8,address,uint256,uint32,uint32,uint32,bool,uint40)",
+  // plans (createPlan / updatePlan take a struct)
+  "function createPlan(uint256 orgId, tuple(string name,string description,string benefits,uint8 planType,uint8 currency,address tokenAddress,uint256 price,uint32 durationDays,uint32 maxMembers) p) external returns (uint256)",
+  "function updatePlan(uint256 planId, tuple(string name,string description,string benefits,uint256 price,uint32 durationDays,uint32 maxMembers) u) external",
+  "function plans(uint256) external view returns (uint256 orgId,string name,string description,string benefits,uint8 planType,uint8 currency,address tokenAddress,uint256 price,uint32 durationDays,uint32 maxMembers,uint32 currentMembers,bool active,uint40 createdAt)",
   "function planCount() external view returns (uint256)",
+  "function deactivatePlan(uint256) external",
+  // membership
   "function purchaseMembership(uint256) external payable returns (uint256)",
   "function renewMembership(uint256) external payable",
+  "function expirePass(uint256) external",
+  // invitations
   "function createInvitation(uint256,address) external returns (uint256)",
   "function claimInvitation(uint256) external returns (uint256)",
-  "function invitations(uint256) external view returns (uint256,address,uint40,bool)",
+  "function invitations(uint256) external view returns (uint256 planId,address invitee,uint40 createdAt,bool used)",
+  "function getPlanInvitations(uint256) external view returns (uint256[])",
+  "function inviteCount() external view returns (uint256)",
+  // passes
   "function suspendPass(uint256) external",
   "function unsuspendPass(uint256) external",
   "function revokePass(uint256,string) external",
   "function adminRevokePass(uint256,string) external",
-  "function passes(uint256) external view returns (uint256,uint256,address,uint8,uint40,uint40,uint40,uint40,string,bool)",
+  "function passes(uint256) external view returns (uint256 orgId,uint256 planId,address holder,uint8 status,uint40 issuedAt,uint40 expiresAt,uint40 suspendedAt,uint40 revokedAt,string revokeReason,bool isInvitation)",
   "function passCount() external view returns (uint256)",
   "function getHolderPasses(address) external view returns (uint256[])",
   "function isActiveMember(address,uint256) external view returns (bool)",
   "function isOrgMember(address,uint256) external view returns (bool,uint256)",
   "function getPassStatus(uint256) external view returns (uint8)",
   "function getHolderPassForPlan(address,uint256) external view returns (bool,uint256)",
+  // money
   "function withdrawOrgRevenue(uint256,address) external",
   "function withdrawTreasury(address) external",
   "function orgWithdrawable(uint256,address) external view returns (uint256)",
+  "function treasuryFees(address) external view returns (uint256)",
+  // admin
+  "function admin() external view returns (address)",
+  "function pendingAdmin() external view returns (address)",
+  "function treasury() external view returns (address)",
+  "function paused() external view returns (bool)",
   "function setOrgActive(uint256,bool) external",
   "function setPaused(bool) external",
   "function initiateAdminTransfer(address) external",
   "function acceptAdminTransfer() external",
-  "function deactivatePlan(uint256) external"
+  // events (used to read IDs from receipts)
+  "event OrgRegistered(uint256 indexed orgId, address indexed owner, string name)",
+  "event PlanCreated(uint256 indexed planId, uint256 indexed orgId, string name)",
+  "event PassIssued(uint256 indexed passId, uint256 indexed planId, address indexed holder)",
+  "event InvitationCreated(uint256 indexed inviteId, uint256 indexed planId, address invitee)"
+];
+
+const ERC20_ABI = [
+  "function approve(address,uint256) returns (bool)",
+  "function allowance(address,address) view returns (uint256)",
+  "function balanceOf(address) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+  "function symbol() view returns (string)"
 ];
 
 // ── State ─────────────────────────────────────────
-let provider, signer, contract, userAddr;
+const NETWORK      = ethers.Network.from(CFG.CHAIN_ID);
+const readProvider = new ethers.JsonRpcProvider(CFG.RPC_URL, NETWORK, { staticNetwork: NETWORK });
+const readContract = new ethers.Contract(CFG.CONTRACT_ADDRESS, ABI, readProvider);
+
+let provider = null, signer = null, contract = null, userAddr = null;
 let cachedOrgs = [];
 let currentOrgId = null;
+let dashOrgId = null;
+const planCache  = {};
+const tokenCache = {};
 
-const PLAN_TYPES = ["Paid","Free","Invite only"];
-const PASS_STATUS = ["Active","Expired","Suspended","Revoked"];
+const PLAN_TYPES   = ["Paid","Free","Invite only"];
+const PASS_STATUS  = ["Active","Expired","Suspended","Revoked"];
 const STATUS_CHIPS = ["chip-green","chip-amber","chip-red","chip-muted"];
 const STATUS_DOTS  = ["dot-active","dot-expired","dot-suspended","dot-revoked"];
+const STATUS_CARD  = ["status-active","status-expired","status-suspended","status-revoked"];
+
+// Reads go through the wallet when connected (avoids RPC CORS issues), otherwise the public RPC
+function R(){ return contract || readContract; }
+function runner(){ return provider || readProvider; }
 
 // ── Wallet ─────────────────────────────────────────
-async function connectWallet() {
+async function ensureChain(){
+  const cur = await window.ethereum.request({ method:"eth_chainId" });
+  if (parseInt(cur,16) === CFG.CHAIN_ID) return;
+  try {
+    await window.ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId:CFG.CHAIN_ID_HEX }] });
+  } catch(e){
+    const code = e?.code ?? e?.data?.originalError?.code;
+    if (code === 4902 || /unrecognized|not added|unknown chain/i.test(e?.message||"")) {
+      await window.ethereum.request({
+        method:"wallet_addEthereumChain",
+        params:[{
+          chainId: CFG.CHAIN_ID_HEX,
+          chainName: CFG.CHAIN_NAME,
+          nativeCurrency: CFG.NATIVE,
+          rpcUrls: [CFG.RPC_URL],
+          blockExplorerUrls: [CFG.EXPLORER]
+        }]
+      });
+    } else throw e;
+  }
+}
+
+async function connectWallet(){
   if (!window.ethereum) return toast("No wallet detected","err");
   try {
+    await window.ethereum.request({ method:"eth_requestAccounts" });
+    await ensureChain();
+    // create the provider AFTER switching chain (ethers v6 rejects network changes)
     provider = new ethers.BrowserProvider(window.ethereum);
-    await provider.send("eth_requestAccounts",[]);
     signer   = await provider.getSigner();
     userAddr = await signer.getAddress();
     contract = new ethers.Contract(CFG.CONTRACT_ADDRESS, ABI, signer);
     document.getElementById("wAddr").textContent = short(userAddr);
-    document.getElementById("wDot").classList.add("on");
+    const dot = document.getElementById("wDot");
+    dot.classList.remove("warn"); dot.classList.add("on");
     toast("Wallet connected","ok");
     refreshPage();
-  } catch(e){ toast(e.message,"err"); }
+  } catch(e){ toast(errMsg(e),"err"); }
 }
-async function connectAndGo(){ await connectWallet(); if(userAddr) showApp("directory"); }
-function needWallet(){ if(!signer){ toast("Connect wallet first","err"); return false; } return true; }
+function disconnectWallet(){
+  provider = signer = contract = userAddr = null;
+  document.getElementById("wAddr").textContent = "Connect";
+  document.getElementById("wDot").classList.remove("on","warn");
+  refreshPage();
+}
+async function connectAndGo(){ await connectWallet(); if (userAddr) showApp("directory"); }
+function needWallet(){ if (!signer){ toast("Connect wallet first","err"); return false; } return true; }
+
+if (window.ethereum?.on) {
+  window.ethereum.on("accountsChanged", acc => { if (!acc.length) disconnectWallet(); else if (signer) connectWallet(); });
+  window.ethereum.on("chainChanged", () => location.reload());
+}
 
 // ── Navigation ─────────────────────────────────────
 let curPage = "landing";
@@ -786,44 +886,115 @@ function showApp(page){
   document.getElementById("topbar").style.display = "";
   show(page||"directory");
 }
-function onEnter(id){
-  if(id==="directory") loadDirectory();
-  if(id==="my-passes") loadMyPasses();
-  if(id==="org-dash")  loadOrgDash();
+function goLanding(){
+  document.getElementById("topbar").style.display = "none";
+  show("landing");
 }
-function refreshPage(){ if(curPage!=="landing") onEnter(curPage); }
+function onEnter(id){
+  if (id==="directory")  loadDirectory();
+  if (id==="org-detail" && currentOrgId) viewOrg(currentOrgId, true);
+  if (id==="my-passes")  loadMyPasses();
+  if (id==="org-dash")   loadOrgDash();
+  if (id==="admin")      loadAdmin();
+}
+function refreshPage(){ if (curPage!=="landing") onEnter(curPage); }
+
+// ── Data helpers ───────────────────────────────────
+async function tokenMeta(addr){
+  if (!addr || addr === CFG.ZERO_ADDR) return { symbol:"BOT", decimals:18 };
+  const k = addr.toLowerCase();
+  if (tokenCache[k]) return tokenCache[k];
+  const t = new ethers.Contract(addr, ERC20_ABI, runner());
+  let symbol = "TOKEN", decimals = 18;
+  try { symbol = await t.symbol(); } catch {}
+  try { decimals = Number(await t.decimals()); } catch {}
+  return tokenCache[k] = { symbol, decimals };
+}
+function fmtAmount(amount, meta){
+  let s = ethers.formatUnits(amount, meta.decimals);
+  if (s.endsWith(".0")) s = s.slice(0,-2);
+  return `${s} ${meta.symbol}`;
+}
+function parsePlan(id, p){
+  return {
+    id:Number(id), orgId:Number(p[0]), name:p[1], desc:p[2], benefits:p[3],
+    type:Number(p[4]), currency:Number(p[5]), token:p[6], price:p[7],
+    duration:Number(p[8]), max:Number(p[9]), current:Number(p[10]), active:p[11]
+  };
+}
+async function getPlan(id){
+  const plan = parsePlan(id, await R().plans(id));
+  plan.meta = await tokenMeta(plan.currency===1 ? plan.token : null);
+  planCache[plan.id] = plan;
+  return plan;
+}
+function parsePass(id, p){
+  return {
+    id:Number(id), orgId:Number(p[0]), planId:Number(p[1]), holder:p[2],
+    status:Number(p[3]), expiresAt:Number(p[5]), revokeReason:p[8], isInvitation:p[9]
+  };
+}
+function fmtExpiry(ts){ return ts===0 ? "Lifetime" : new Date(ts*1000).toLocaleDateString(); }
+
+async function sendTx(fn, okMsg){
+  toast("Confirm in your wallet…");
+  const tx = await fn();
+  toast("Transaction sent — waiting for confirmation…");
+  const receipt = await tx.wait();
+  toast(okMsg,"ok");
+  return receipt;
+}
+function findEvent(receipt, name){
+  for (const log of receipt?.logs || []) {
+    try {
+      const parsed = contract.interface.parseLog(log);
+      if (parsed && parsed.name === name) return parsed;
+    } catch {}
+  }
+  return null;
+}
+async function ensureAllowance(token, amount){
+  const t = new ethers.Contract(token, ERC20_ABI, signer);
+  const [allowance, balance] = await Promise.all([
+    t.allowance(userAddr, CFG.CONTRACT_ADDRESS),
+    t.balanceOf(userAddr)
+  ]);
+  if (balance < amount) throw new Error("Insufficient token balance");
+  if (allowance >= amount) return;
+  // USDT-style tokens require resetting a non-zero allowance to 0 first
+  if (allowance > 0n) await sendTx(()=>t.approve(CFG.CONTRACT_ADDRESS, 0n), "Allowance reset");
+  await sendTx(()=>t.approve(CFG.CONTRACT_ADDRESS, amount), "Token approved");
+}
 
 // ── Directory ──────────────────────────────────────
 async function loadDirectory(){
-  if(!contract){ return; }
   const el = document.getElementById("directoryList");
   el.innerHTML = `<p class="text-sm text-muted">Loading…</p>`;
   try {
-    const count = Number(await contract.orgCount());
-    cachedOrgs = [];
-    for(let i=1; i<=count; i++){
-      const o = await contract.orgs(i);
-      if(!o[5]) continue; // exists
-      const planIds = await contract.getOrgPlans(i);
-      const passIds = await contract.getOrgPasses(i);
-      cachedOrgs.push({ id:i, name:o[0], desc:o[1], logo:o[2], web:o[3], active:o[6], planCount:planIds.length, memberCount:passIds.length });
-    }
-    renderDirectory(cachedOrgs);
-  } catch(e){ el.innerHTML = `<div class="empty text-sm" style="color:var(--red)">${e.message}</div>`; }
+    const count = Number(await R().orgCount());
+    const ids = Array.from({length:count}, (_,i)=>i+1);
+    const rows = await Promise.all(ids.map(async id=>{
+      const [o, planIds, passIds] = await Promise.all([R().orgs(id), R().getOrgPlans(id), R().getOrgPasses(id)]);
+      if (!o[5]) return null; // exists
+      return { id, name:o[0], desc:o[1], logo:o[2], web:o[3], active:o[6], planCount:planIds.length, memberCount:passIds.length };
+    }));
+    cachedOrgs = rows.filter(Boolean).reverse(); // newest first
+    filterOrgs();
+  } catch(e){ el.innerHTML = `<div class="empty text-sm" style="color:var(--red)">${esc(errMsg(e))}</div>`; }
 }
 function renderDirectory(list){
   const el = document.getElementById("directoryList");
-  if(!list.length){ el.innerHTML = `<div class="empty"><div class="empty-ico">◫</div>No organizations yet</div>`; return; }
+  if (!list.length){ el.innerHTML = `<div class="empty"><div class="empty-ico">◫</div>No organizations yet</div>`; return; }
   el.innerHTML = list.map(o=>`
     <div class="org-card mb3" onclick="viewOrg(${o.id})">
-      <div class="org-logo">${o.name.charAt(0)}</div>
+      ${orgLogo(o.name, o.logo)}
       <div class="org-info">
-        <h4>${o.name}</h4>
-        <p>${truncate(o.desc,60)}</p>
+        <h4>${esc(o.name)}</h4>
+        <p>${esc(truncate(o.desc,60))}</p>
       </div>
       <div class="org-meta">
         <div class="org-meta-num">${o.memberCount}</div>
-        <div class="org-meta-label">members</div>
+        <div class="org-meta-label">passes</div>
         <div class="mt2"><span class="chip ${o.active?'chip-green':'chip-muted'}">${o.active?"Active":"Inactive"}</span></div>
       </div>
     </div>`).join("");
@@ -832,321 +1003,410 @@ function filterOrgs(){
   const q = document.getElementById("orgSearch").value.toLowerCase();
   renderDirectory(q ? cachedOrgs.filter(o=>o.name.toLowerCase().includes(q)) : cachedOrgs);
 }
-async function viewOrg(orgId){
+
+async function viewOrg(orgId, noNav){
   currentOrgId = orgId;
-  show("org-detail");
+  if (!noNav) { show("org-detail"); return; }
   const el = document.getElementById("orgDetailContent");
   el.innerHTML = `<p class="text-sm text-muted">Loading…</p>`;
   try {
-    const [o, planIds] = await Promise.all([contract.orgs(orgId), contract.getOrgPlans(orgId)]);
-    let plansHTML = "";
-    for(const pid of planIds){
-      const p = await contract.plans(pid);
-      if(!p[11]) continue; // inactive
-      const price = Number(p[7]);
-      const ptype = Number(p[4]);
-      const dur   = Number(p[8]);
-      const curr  = Number(p[5])==0?"BOT":"Token";
-      const priceStr = ptype===0 ? `${ethers.formatEther(BigInt(price))} ${curr}` : "Free";
-      const durStr   = dur===0 ? "Lifetime" : `${dur} days`;
-      const slots    = Number(p[9])===0 ? "Unlimited" : `${Number(p[10])}/${Number(p[9])}`;
-      plansHTML += `
+    const [o, planIds] = await Promise.all([R().orgs(orgId), R().getOrgPlans(orgId)]);
+    const plans = (await Promise.all(planIds.map(getPlan))).filter(p=>p.active);
+    const memberOf = userAddr
+      ? await Promise.all(plans.map(p=>R().isActiveMember(userAddr, p.id)))
+      : plans.map(()=>false);
+
+    const plansHTML = plans.map((p,i)=>{
+      const priceStr = p.type===0 ? fmtAmount(p.price, p.meta) : "Free";
+      const durStr   = p.duration===0 ? "Lifetime" : `${p.duration} days`;
+      const slots    = p.max===0 ? `${p.current} / Unlimited` : `${p.current} / ${p.max}`;
+      return `
         <div class="plan-card">
-          <div class="flex aic jb mb3">
-            <div class="plan-name">${p[1]}</div>
-            <span class="chip chip-violet">${PLAN_TYPES[ptype]}</span>
+          <div class="flex aic jb mb3 gap2">
+            <div class="plan-name">${esc(p.name)}</div>
+            <span class="chip chip-violet">${PLAN_TYPES[p.type]}</span>
           </div>
-          <div class="plan-price">${priceStr} <span>/ ${durStr}</span></div>
-          <div class="plan-benefits">${p[3]||p[2]}</div>
-          <div class="text-sm text-muted mb4">Slots: ${slots}</div>
-          ${renderJoinBtn(pid, ptype, Number(p[7]), Number(p[5]), p[6])}
+          <div class="text-sm text-muted">Plan ID #${p.id}</div>
+          <div class="plan-price">${esc(priceStr)} <span>/ ${durStr}</span></div>
+          <div class="plan-benefits">${esc(p.benefits||p.desc)}</div>
+          <div class="text-sm text-muted mb4">Members: ${slots}</div>
+          ${renderJoinBtn(p, memberOf[i], o[6])}
         </div>`;
-    }
+    }).join("");
+
+    const web = safeUrl(o[3]);
     el.innerHTML = `
       <div class="flex aic gap4 mb4">
-        <div class="org-logo" style="width:56px;height:56px;font-size:1.3rem">${o[0].charAt(0)}</div>
+        ${orgLogo(o[0], o[2], 56)}
         <div>
-          <div class="syne" style="font-size:1.4rem;font-weight:800">${o[0]}</div>
-          <div class="text-muted text-sm">${o[3]||""}</div>
+          <div class="syne" style="font-size:1.4rem;font-weight:800">${esc(o[0])}</div>
+          ${web?`<a class="text-muted text-sm" href="${esc(web)}" target="_blank" rel="noopener">${esc(o[3])}</a>`:""}
         </div>
         <span class="chip ${o[6]?'chip-green':'chip-muted'} ml-auto">${o[6]?"Active":"Inactive"}</span>
       </div>
-      <p class="text-muted text-sm mb4">${o[1]}</p>
+      <p class="text-muted text-sm mb4">${esc(o[1])}</p>
       <div class="divider"></div>
       <div class="syne mb4" style="font-weight:700;font-size:1rem">Membership Plans</div>
       <div class="g3">${plansHTML||`<p class="text-sm text-muted">No active plans</p>`}</div>`;
-  } catch(e){ el.innerHTML = `<div class="text-sm" style="color:var(--red)">${e.message}</div>`; }
+  } catch(e){ el.innerHTML = `<div class="text-sm" style="color:var(--red)">${esc(errMsg(e))}</div>`; }
 }
 
-function renderJoinBtn(planId, ptype, price, currency, tokenAddr){
-  if(ptype===2) return `<button class="btn btn-outline btn-sm w-full" disabled>Invitation only</button>`;
-  if(ptype===1) return `<button class="btn btn-teal btn-sm w-full" onclick="joinFree(${planId})">Claim free pass</button>`;
-  return `<button class="btn btn-violet btn-sm w-full" onclick="purchasePlan(${planId},${price},${currency},'${tokenAddr}')">Purchase membership</button>`;
+function renderJoinBtn(p, isMember, orgActive){
+  if (isMember)   return `<button class="btn btn-outline btn-sm w-full" disabled>✓ You're a member</button>`;
+  if (!orgActive) return `<button class="btn btn-outline btn-sm w-full" disabled>Organization inactive</button>`;
+  if (p.type===2) return `<button class="btn btn-outline btn-sm w-full" disabled>Invitation only</button>`;
+  if (p.max>0 && p.current>=p.max) return `<button class="btn btn-outline btn-sm w-full" disabled>Plan full</button>`;
+  if (p.type===1) return `<button class="btn btn-teal btn-sm w-full" onclick="purchasePlan(${p.id})">Claim free pass</button>`;
+  return `<button class="btn btn-violet btn-sm w-full" onclick="purchasePlan(${p.id})">Purchase · ${esc(fmtAmount(p.price,p.meta))}</button>`;
 }
 
 // ── Purchase / Join ────────────────────────────────
-async function joinFree(planId){
-  if(!needWallet()) return;
+async function purchasePlan(planId){
+  if (!needWallet()) return;
   try {
-    const tx = await contract.purchaseMembership(planId,{value:0n});
-    await tx.wait(); toast("Pass claimed!","ok"); loadMyPasses();
-  } catch(e){ toast(e.reason||e.message,"err"); }
-}
-async function purchasePlan(planId, price, currency, tokenAddr){
-  if(!needWallet()) return;
-  try {
-    if(currency===1 && tokenAddr && tokenAddr!==CFG.ZERO_ADDR){
-      // ERC20 — need approval first
-      const erc20 = new ethers.Contract(tokenAddr,["function approve(address,uint256) external returns (bool)"],signer);
-      const appTx = await erc20.approve(CFG.CONTRACT_ADDRESS, BigInt(price));
-      toast("Approving token…","ok");
-      await appTx.wait();
-      const tx = await contract.purchaseMembership(planId);
-      await tx.wait();
+    const plan = await getPlan(planId);
+    if (plan.type !== 0) {
+      await sendTx(()=>contract.purchaseMembership(planId), "Pass claimed!");
+    } else if (plan.currency === 1) {
+      await ensureAllowance(plan.token, plan.price);
+      await sendTx(()=>contract.purchaseMembership(planId), "Membership purchased!");
     } else {
-      const tx = await contract.purchaseMembership(planId,{value:BigInt(price)});
-      await tx.wait();
+      await sendTx(()=>contract.purchaseMembership(planId, { value: plan.price }), "Membership purchased!");
     }
-    toast("Membership purchased!","ok"); loadMyPasses();
-  } catch(e){ toast(e.reason||e.message,"err"); }
+    if (curPage==="org-detail") viewOrg(plan.orgId, true);
+  } catch(e){ toast(errMsg(e),"err"); }
 }
 
 // ── My Passes ──────────────────────────────────────
 async function loadMyPasses(){
-  if(!needWallet()) return;
   const el = document.getElementById("myPassesContent");
+  if (!signer){ el.innerHTML = `<div class="empty"><div class="empty-ico">⬡</div>Connect wallet to view your passes</div>`; return; }
   el.innerHTML = `<p class="text-sm text-muted">Loading…</p>`;
   try {
-    const ids = await contract.getHolderPasses(userAddr);
-    if(!ids.length){ el.innerHTML = `<div class="empty"><div class="empty-ico">⬡</div>No passes yet — browse organizations to get started</div>`; return; }
-    let html = `<div class="g2">`;
-    for(const id of ids){
-      const pass = await contract.passes(id);
-      const liveStatus = await contract.getPassStatus(id);
-      const orgData = await contract.orgs(Number(pass[0]));
-      const planData = await contract.plans(Number(pass[1]));
-      html += renderPassCard(id, pass, liveStatus, orgData, planData);
-    }
-    html += `</div>`;
-    el.innerHTML = html;
-  } catch(e){ el.innerHTML = `<div class="empty text-sm" style="color:var(--red)">${e.message}</div>`; }
+    const ids = [...await contract.getHolderPasses(userAddr)].reverse();
+    if (!ids.length){ el.innerHTML = `<div class="empty"><div class="empty-ico">⬡</div>No passes yet — browse organizations to get started</div>`; return; }
+    const cards = await Promise.all(ids.map(async id=>{
+      const [raw, status] = await Promise.all([contract.passes(id), contract.getPassStatus(id)]);
+      const pass = parsePass(id, raw);
+      const [org, plan, cur] = await Promise.all([
+        contract.orgs(pass.orgId),
+        getPlan(pass.planId),
+        contract.getHolderPassForPlan(userAddr, pass.planId)
+      ]);
+      const isCurrent = cur[0] && Number(cur[1]) === pass.id;
+      return renderPassCard(pass, Number(status), org, plan, isCurrent);
+    }));
+    el.innerHTML = `<div class="g2">${cards.join("")}</div>`;
+  } catch(e){ el.innerHTML = `<div class="empty text-sm" style="color:var(--red)">${esc(errMsg(e))}</div>`; }
 }
 
-function renderPassCard(id, pass, liveStatus, org, plan){
-  const status = Number(liveStatus);
-  const statusName = PASS_STATUS[status];
-  const dotClass   = STATUS_DOTS[status];
-  const expiry     = Number(pass[5])===0 ? "Lifetime" : new Date(Number(pass[5])*1000).toLocaleDateString();
-  const cardClass  = ["status-active","status-expired","status-suspended","status-revoked"][status];
+function renderPassCard(pass, status, org, plan, isCurrent){
+  const canRenew = isCurrent && plan.active && plan.type===0 && plan.duration>0 && (status===0 || status===1);
   return `
-    <div class="pass-card ${cardClass}">
+    <div class="pass-card ${STATUS_CARD[status]}">
       <div>
-        <div class="pass-org">${org[0]}</div>
-        <div class="pass-plan">${plan[1]}</div>
-        <div class="pass-holder">${short(pass[2])}</div>
+        <div class="pass-org">${esc(org[0])}</div>
+        <div class="pass-plan">${esc(plan.name)}</div>
+        <div class="pass-holder">${short(pass.holder)}</div>
       </div>
       <div class="pass-meta">
         <div>
-          <div class="pass-expiry">${expiry}</div>
-          <div class="text-sm text-muted mt2">Pass #${id}</div>
+          <div class="pass-expiry">${status===3?"Revoked":(status===1?"Expired ":"Expires ")+fmtExpiry(pass.expiresAt)}</div>
+          <div class="text-sm text-muted mt2">Pass #${pass.id} · Plan #${plan.id}</div>
         </div>
         <div class="flex aic gap2">
-          <div class="pass-status-dot ${dotClass}"></div>
-          <span class="text-sm" style="color:var(--text-muted)">${statusName}</span>
-          ${status===0&&Number(plan[8])>0?`<button class="btn btn-outline btn-sm" onclick="renewPass(${id},${plan[7]},${plan[5]},${plan[6]=='0x0000000000000000000000000000000000000000'?'null':'"'+plan[6]+'"'})">Renew</button>`:""}
+          <div class="pass-status-dot ${STATUS_DOTS[status]}"></div>
+          <span class="text-sm" style="color:var(--text-muted)">${PASS_STATUS[status]}</span>
+          ${canRenew?`<button class="btn btn-outline btn-sm" onclick="renewPass(${pass.id},${plan.id})">Renew · ${esc(fmtAmount(plan.price,plan.meta))}</button>`:""}
         </div>
       </div>
     </div>`;
 }
 
-async function renewPass(passId, price, currency, tokenAddr){
-  if(!needWallet()) return;
+async function renewPass(passId, planId){
+  if (!needWallet()) return;
   try {
-    if(currency===1 && tokenAddr){
-      const erc20 = new ethers.Contract(tokenAddr,["function approve(address,uint256) external returns (bool)"],signer);
-      await (await erc20.approve(CFG.CONTRACT_ADDRESS, BigInt(price))).wait();
-      await (await contract.renewMembership(passId)).wait();
+    const plan = await getPlan(planId);
+    if (plan.currency === 1) {
+      await ensureAllowance(plan.token, plan.price);
+      await sendTx(()=>contract.renewMembership(passId), "Membership renewed");
     } else {
-      await (await contract.renewMembership(passId,{value:BigInt(price)})).wait();
+      await sendTx(()=>contract.renewMembership(passId, { value: plan.price }), "Membership renewed");
     }
-    toast("Membership renewed","ok"); loadMyPasses();
-  } catch(e){ toast(e.reason||e.message,"err"); }
+    loadMyPasses();
+  } catch(e){ toast(errMsg(e),"err"); }
 }
 
 // ── Org Dashboard ──────────────────────────────────
 async function loadOrgDash(){
-  if(!needWallet()) return;
   const el = document.getElementById("orgDashContent");
+  if (!signer){ el.innerHTML = `<div class="empty"><div class="empty-ico">⬡</div>Connect wallet to manage your organization</div>`; return; }
   el.innerHTML = `<p class="text-sm text-muted">Loading…</p>`;
   try {
-    const myOrgIds = await contract.getOwnerOrgs(userAddr);
-    if(!myOrgIds.length){
+    const myOrgIds = (await contract.getOwnerOrgs(userAddr)).map(Number);
+    if (!myOrgIds.length){
       el.innerHTML = `<div class="empty"><div class="empty-ico">⬡</div>No organization registered<br/><button class="btn btn-violet mt3" onclick="show('create-org')">Register organization</button></div>`;
       return;
     }
-    // Show first org (can expand to multi-org)
-    const orgId = Number(myOrgIds[myOrgIds.length-1]);
-    const [o, planIds, passIds] = await Promise.all([
+    if (!myOrgIds.includes(dashOrgId)) dashOrgId = myOrgIds[myOrgIds.length-1];
+    const orgId = dashOrgId;
+
+    const [o, planIds, passIds, orgNames] = await Promise.all([
       contract.orgs(orgId),
       contract.getOrgPlans(orgId),
-      contract.getOrgPasses(orgId)
+      contract.getOrgPasses(orgId),
+      myOrgIds.length > 1 ? Promise.all(myOrgIds.map(id=>contract.orgs(id).then(x=>x[0]))) : Promise.resolve([])
     ]);
+    const plans = await Promise.all(planIds.map(getPlan));
+    const planName = Object.fromEntries(plans.map(p=>[p.id, p.name]));
+    const activeMembers = plans.reduce((s,p)=>s+p.current, 0);
 
-    // Revenue (BOT)
-    const withdrawable = await contract.orgWithdrawable(orgId, CFG.ZERO_ADDR);
+    // Revenue per token (BOT + any ERC-20 used by plans)
+    const tokens = [CFG.ZERO_ADDR];
+    plans.filter(p=>p.currency===1).forEach(p=>{
+      if (!tokens.some(t=>t.toLowerCase()===p.token.toLowerCase())) tokens.push(p.token);
+    });
+    const revenue = await Promise.all(tokens.map(async t=>({
+      token:t, meta:await tokenMeta(t), amount:await contract.orgWithdrawable(orgId, t)
+    })));
 
-    let plansRows = "";
-    for(const pid of planIds){
-      const p = await contract.plans(pid);
-      plansRows += `<tr>
-        <td>${p[1]}</td>
-        <td>${PLAN_TYPES[Number(p[4])]}</td>
-        <td>${Number(p[10])} / ${Number(p[9])===0?"∞":Number(p[9])}</td>
-        <td>${Number(p[8])===0?"Lifetime":Number(p[8])+"d"}</td>
-        <td><span class="chip ${p[11]?'chip-green':'chip-muted'}">${p[11]?"Active":"Inactive"}</span></td>
+    const orgSelect = myOrgIds.length > 1 ? `
+      <select class="form-input" style="max-width:260px" onchange="dashOrgId=Number(this.value);loadOrgDash()">
+        ${myOrgIds.map((id,i)=>`<option value="${id}" ${id===orgId?"selected":""}>${esc(orgNames[i])} (#${id})</option>`).join("")}
+      </select>` : "";
+
+    const plansRows = plans.map(p=>`
+      <tr>
+        <td>${esc(p.name)}<div class="text-sm text-muted">#${p.id}</div></td>
+        <td>${PLAN_TYPES[p.type]}</td>
+        <td>${p.type===0?esc(fmtAmount(p.price,p.meta)):"Free"}</td>
+        <td>${p.current} / ${p.max===0?"∞":p.max}</td>
+        <td>${p.duration===0?"Lifetime":p.duration+"d"}</td>
+        <td><span class="chip ${p.active?'chip-green':'chip-muted'}">${p.active?"Active":"Inactive"}</span></td>
         <td>
-          <button class="btn btn-outline btn-sm" onclick="openInviteModal(${pid})">Invite</button>
-          <button class="btn btn-danger btn-sm" onclick="deactivatePlan(${pid})">Deactivate</button>
+          <div class="flex gap2">
+            ${p.active && p.type!==0?`<button class="btn btn-outline btn-sm" onclick="openInviteModal(${p.id})">Invite</button>`:""}
+            ${p.active?`<button class="btn btn-danger btn-sm" onclick="deactivatePlan(${p.id})">Deactivate</button>`:""}
+          </div>
         </td>
-      </tr>`;
-    }
+      </tr>`).join("");
 
-    let memberRows = "";
-    const recent = passIds.slice(-15).reverse();
-    for(const pid of recent){
-      const pass = await contract.passes(Number(pid));
-      const liveStatus = await contract.getPassStatus(Number(pid));
-      const status = Number(liveStatus);
-      memberRows += `<tr>
-        <td>${Number(pid)}</td>
-        <td style="font-family:monospace;font-size:.75rem">${pass[2]}</td>
+    const recent = [...passIds].slice(-15).reverse();
+    const memberRows = (await Promise.all(recent.map(async pid=>{
+      const [raw, st] = await Promise.all([contract.passes(pid), contract.getPassStatus(pid)]);
+      const pass = parsePass(pid, raw);
+      const status = Number(st);
+      return `<tr>
+        <td>${pass.id}</td>
+        <td class="mono" style="font-size:.75rem">${esc(pass.holder)}</td>
+        <td>${esc(planName[pass.planId]||"#"+pass.planId)}</td>
         <td><span class="chip ${STATUS_CHIPS[status]}">${PASS_STATUS[status]}</span></td>
-        <td>${Number(pass[5])===0?"Lifetime":new Date(Number(pass[5])*1000).toLocaleDateString()}</td>
+        <td>${fmtExpiry(pass.expiresAt)}</td>
         <td>
-          ${status===0?`<button class="btn btn-outline btn-sm" onclick="suspendMember(${pid})">Suspend</button>`:""}
-          ${status===2?`<button class="btn btn-teal btn-sm" onclick="unsuspendMember(${pid})">Unsuspend</button>`:""}
-          ${status!==3?`<button class="btn btn-danger btn-sm" onclick="revokeModal(${pid})">Revoke</button>`:""}
+          <div class="flex gap2">
+            ${status===0?`<button class="btn btn-outline btn-sm" onclick="suspendMember(${pass.id})">Suspend</button>`:""}
+            ${status===2?`<button class="btn btn-teal btn-sm" onclick="unsuspendMember(${pass.id})">Unsuspend</button>`:""}
+            ${status!==3?`<button class="btn btn-danger btn-sm" onclick="revokeModal(${pass.id})">Revoke</button>`:""}
+          </div>
         </td>
       </tr>`;
-    }
+    }))).join("");
+
+    const revenueRows = revenue.map(r=>`
+      <div class="flex aic jb gap3 mb3">
+        <div><div class="syne" style="font-weight:700">${esc(fmtAmount(r.amount, r.meta))}</div><div class="text-sm text-muted">withdrawable</div></div>
+        <button class="btn btn-teal btn-sm" ${r.amount>0n?"":"disabled"} onclick="withdrawRevenue(${orgId},'${r.token}')">Withdraw ${esc(r.meta.symbol)}</button>
+      </div>`).join("");
 
     el.innerHTML = `
+      <div class="flex aic jb gap3 mb4 wrap">
+        <div class="flex aic gap3">
+          ${orgLogo(o[0], o[2])}
+          <div>
+            <div class="syne" style="font-size:1.2rem;font-weight:700">${esc(o[0])}</div>
+            <div class="text-sm text-muted">Org #${orgId} · <span class="chip ${o[6]?'chip-green':'chip-muted'}">${o[6]?"Active":"Inactive"}</span></div>
+          </div>
+        </div>
+        ${orgSelect}
+      </div>
+
       <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
-        <div class="stat"><div class="stat-val">${planIds.length}</div><div class="stat-label">Plans</div></div>
+        <div class="stat"><div class="stat-val">${plans.length}</div><div class="stat-label">Plans</div></div>
         <div class="stat"><div class="stat-val">${passIds.length}</div><div class="stat-label">Passes issued</div></div>
-        <div class="stat"><div class="stat-val">${ethers.formatEther(withdrawable)}</div><div class="stat-label">BOT withdrawable</div></div>
+        <div class="stat"><div class="stat-val">${activeMembers}</div><div class="stat-label">Occupied slots</div></div>
+      </div>
+
+      <div class="card mb4">
+        <div class="syne mb4" style="font-weight:700">Revenue</div>
+        ${revenueRows}
+        <div class="text-sm text-muted">A 2% platform fee is taken on each payment.</div>
       </div>
 
       <div class="flex aic jb mb4">
         <div class="syne" style="font-weight:700">Membership Plans</div>
-        <div class="flex gap2">
-          <button class="btn btn-violet btn-sm" onclick="openPlanModal(${orgId})">Add plan</button>
-          <button class="btn btn-teal btn-sm" onclick="withdrawRevenue(${orgId})">Withdraw revenue</button>
-        </div>
+        <button class="btn btn-violet btn-sm" onclick="openPlanModal(${orgId})">Add plan</button>
       </div>
-      <div class="card mb4" style="padding:0;overflow:hidden">
+      <div class="card mb4 tbl-wrap" style="padding:0">
         <table class="tbl">
-          <thead><tr><th>Plan</th><th>Type</th><th>Members</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>${plansRows||`<tr><td colspan="6" class="text-muted text-sm" style="padding:20px">No plans yet</td></tr>`}</tbody>
+          <thead><tr><th>Plan</th><th>Type</th><th>Price</th><th>Members</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>${plansRows||`<tr><td colspan="7" class="text-muted text-sm" style="padding:20px">No plans yet</td></tr>`}</tbody>
         </table>
       </div>
 
       <div class="flex aic jb mb4">
         <div class="syne" style="font-weight:700">Recent Members</div>
       </div>
-      <div class="card" style="padding:0;overflow:hidden">
+      <div class="card tbl-wrap" style="padding:0">
         <table class="tbl">
-          <thead><tr><th>Pass #</th><th>Holder</th><th>Status</th><th>Expires</th><th>Actions</th></tr></thead>
-          <tbody>${memberRows||`<tr><td colspan="5" class="text-muted text-sm" style="padding:20px">No members yet</td></tr>`}</tbody>
+          <thead><tr><th>Pass #</th><th>Holder</th><th>Plan</th><th>Status</th><th>Expires</th><th>Actions</th></tr></thead>
+          <tbody>${memberRows||`<tr><td colspan="6" class="text-muted text-sm" style="padding:20px">No members yet</td></tr>`}</tbody>
         </table>
       </div>`;
-  } catch(e){ el.innerHTML = `<div class="empty text-sm" style="color:var(--red)">${e.message}</div>`; }
+  } catch(e){ el.innerHTML = `<div class="empty text-sm" style="color:var(--red)">${esc(errMsg(e))}</div>`; }
 }
 
 // ── Register Org ───────────────────────────────────
 async function registerOrg(){
-  if(!needWallet()) return;
+  if (!needWallet()) return;
   const name = document.getElementById("oName").value.trim();
-  if(!name) return toast("Name required","err");
+  if (!name) return toast("Name required","err");
+  if (name.length > 80) return toast("Name must be 80 characters or less","err");
   try {
-    const tx = await contract.registerOrg(name, document.getElementById("oDesc").value, document.getElementById("oLogo").value, document.getElementById("oWeb").value);
-    await tx.wait(); toast("Organization registered","ok"); show("org-dash");
-  } catch(e){ toast(e.reason||e.message,"err"); }
+    const receipt = await sendTx(()=>contract.registerOrg(
+      name,
+      document.getElementById("oDesc").value.trim(),
+      document.getElementById("oLogo").value.trim(),
+      document.getElementById("oWeb").value.trim()
+    ), "Organization registered");
+    const ev = findEvent(receipt, "OrgRegistered");
+    if (ev) dashOrgId = Number(ev.args.orgId);
+    ["oName","oDesc","oLogo","oWeb"].forEach(id=>document.getElementById(id).value="");
+    show("org-dash");
+  } catch(e){ toast(errMsg(e),"err"); }
 }
 
 // ── Plans ──────────────────────────────────────────
 function openPlanModal(orgId){
   document.getElementById("planOrgId").value = orgId;
-  document.getElementById("pName").value="";
-  document.getElementById("pDesc").value="";
-  document.getElementById("pBenefits").value="";
-  document.getElementById("pPrice").value="";
-  document.getElementById("pDuration").value="365";
-  document.getElementById("pMax").value="0";
+  document.getElementById("pName").value = "";
+  document.getElementById("pDesc").value = "";
+  document.getElementById("pBenefits").value = "";
+  document.getElementById("pType").value = "0";
+  document.getElementById("pCurrency").value = "0";
+  document.getElementById("pToken").value = CFG.USDT;
+  document.getElementById("pPrice").value = "";
+  document.getElementById("pDuration").value = "365";
+  document.getElementById("pMax").value = "0";
+  onPlanTypeChange(); onCurrencyChange();
   openM("planModal");
 }
 function onPlanTypeChange(){
   const v = document.getElementById("pType").value;
-  document.getElementById("pPriceSection").style.display = v==="0"?"":"none";
+  document.getElementById("pPriceSection").style.display = v==="0" ? "" : "none";
 }
 function onCurrencyChange(){
-  document.getElementById("pTokenRow").style.display = document.getElementById("pCurrency").value==="1"?"":"none";
+  document.getElementById("pTokenRow").style.display = document.getElementById("pCurrency").value==="1" ? "" : "none";
 }
 async function createPlan(){
-  if(!needWallet()) return;
+  if (!needWallet()) return;
   const orgId = parseInt(document.getElementById("planOrgId").value);
   const name  = document.getElementById("pName").value.trim();
-  if(!name) return toast("Plan name required","err");
+  if (!name) return toast("Plan name required","err");
+
   const ptype = parseInt(document.getElementById("pType").value);
-  const curr  = parseInt(document.getElementById("pCurrency").value||"0");
+  const curr  = ptype===0 ? parseInt(document.getElementById("pCurrency").value) : 0;
   const token = curr===1 ? document.getElementById("pToken").value.trim() : CFG.ZERO_ADDR;
-  const price = ptype===0 ? BigInt(document.getElementById("pPrice").value||"0") : 0n;
-  const dur   = parseInt(document.getElementById("pDuration").value||"0");
-  const max   = parseInt(document.getElementById("pMax").value||"0");
+  if (curr===1 && !ethers.isAddress(token)) return toast("Invalid token address","err");
+
+  const dur = parseInt(document.getElementById("pDuration").value || "0");
+  const max = parseInt(document.getElementById("pMax").value || "0");
+  if (!Number.isInteger(dur) || dur < 0) return toast("Invalid duration","err");
+  if (!Number.isInteger(max) || max < 0) return toast("Invalid max members","err");
+
   try {
-    const tx = await contract.createPlan(orgId, name, document.getElementById("pDesc").value, document.getElementById("pBenefits").value, ptype, curr, token, price, dur, max);
-    await tx.wait(); toast("Plan created","ok"); closeM("planModal"); loadOrgDash();
-  } catch(e){ toast(e.reason||e.message,"err"); }
+    let price = 0n;
+    if (ptype === 0) {
+      const raw = document.getElementById("pPrice").value.trim();
+      if (!raw || !(Number(raw) > 0)) return toast("Enter a price greater than 0","err");
+      const meta = await tokenMeta(curr===1 ? token : null);
+      price = ethers.parseUnits(raw, meta.decimals);
+    }
+    const params = {
+      name,
+      description:  document.getElementById("pDesc").value.trim(),
+      benefits:     document.getElementById("pBenefits").value.trim(),
+      planType:     ptype,
+      currency:     curr,
+      tokenAddress: token,
+      price,
+      durationDays: dur,
+      maxMembers:   max
+    };
+    await sendTx(()=>contract.createPlan(orgId, params), "Plan created");
+    closeM("planModal"); loadOrgDash();
+  } catch(e){ toast(errMsg(e),"err"); }
 }
 async function deactivatePlan(planId){
-  if(!needWallet()) return;
-  try { await (await contract.deactivatePlan(planId)).wait(); toast("Plan deactivated","ok"); loadOrgDash(); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+  if (!needWallet()) return;
+  if (!confirm("Deactivate this plan? New members won't be able to join.")) return;
+  try { await sendTx(()=>contract.deactivatePlan(planId), "Plan deactivated"); loadOrgDash(); }
+  catch(e){ toast(errMsg(e),"err"); }
 }
 
 // ── Invitations ────────────────────────────────────
-function openInviteModal(planId){ document.getElementById("invitePlanId").value=planId; document.getElementById("inviteeAddr").value=""; openM("inviteModal"); }
+function openInviteModal(planId){
+  document.getElementById("invitePlanId").value = planId;
+  document.getElementById("inviteeAddr").value = "";
+  document.getElementById("inviteResult").innerHTML = "";
+  openM("inviteModal");
+}
 async function createInvitation(){
-  if(!needWallet()) return;
+  if (!needWallet()) return;
   const planId  = parseInt(document.getElementById("invitePlanId").value);
   const invitee = document.getElementById("inviteeAddr").value.trim();
-  if(!ethers.isAddress(invitee)) return toast("Invalid address","err");
-  try { await (await contract.createInvitation(planId,invitee)).wait(); toast("Invitation created","ok"); closeM("inviteModal"); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+  if (!ethers.isAddress(invitee)) return toast("Invalid address","err");
+  try {
+    const receipt = await sendTx(()=>contract.createInvitation(planId, invitee), "Invitation created");
+    const ev = findEvent(receipt, "InvitationCreated");
+    const id = ev ? Number(ev.args.inviteId) : null;
+    document.getElementById("inviteResult").innerHTML = `
+      <div class="notice">
+        ${id!==null?`Invitation <b>#${id}</b> created for <span class="mono">${short(invitee)}</span>.<br/>Share this ID — they claim it on the Verify page.`:"Invitation created. Check the transaction for its ID."}
+      </div>`;
+    document.getElementById("inviteeAddr").value = "";
+  } catch(e){ toast(errMsg(e),"err"); }
 }
 async function claimInvitation(){
-  if(!needWallet()) return;
+  if (!needWallet()) return;
   const id = parseInt(document.getElementById("inviteId").value);
-  try { await (await contract.claimInvitation(id)).wait(); toast("Pass claimed!","ok"); loadMyPasses(); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+  if (!Number.isInteger(id) || id < 1) return toast("Enter a valid invitation ID","err");
+  try {
+    const inv = await contract.invitations(id);
+    if (inv[1] === CFG.ZERO_ADDR) return toast("Invitation not found","err");
+    if (inv[1].toLowerCase() !== userAddr.toLowerCase()) return toast("This invitation is for another wallet","err");
+    if (inv[3]) return toast("Invitation already used","err");
+    await sendTx(()=>contract.claimInvitation(id), "Pass claimed!");
+    document.getElementById("inviteId").value = "";
+    show("my-passes");
+  } catch(e){ toast(errMsg(e),"err"); }
 }
 
 // ── Pass management ────────────────────────────────
 async function suspendMember(passId){
-  if(!needWallet()) return;
-  try { await (await contract.suspendPass(passId)).wait(); toast("Pass suspended","ok"); loadOrgDash(); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+  if (!needWallet()) return;
+  try { await sendTx(()=>contract.suspendPass(passId), "Pass suspended"); loadOrgDash(); }
+  catch(e){ toast(errMsg(e),"err"); }
 }
 async function unsuspendMember(passId){
-  if(!needWallet()) return;
-  try { await (await contract.unsuspendPass(passId)).wait(); toast("Pass unsuspended","ok"); loadOrgDash(); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+  if (!needWallet()) return;
+  try { await sendTx(()=>contract.unsuspendPass(passId), "Pass unsuspended"); loadOrgDash(); }
+  catch(e){ toast(errMsg(e),"err"); }
 }
 function revokeModal(passId){
-  document.getElementById("passActionId").value=passId;
-  document.getElementById("passActionTitle").textContent="Revoke pass #"+passId;
-  document.getElementById("passActionBody").innerHTML=`
-    <p class="text-sm text-muted mb4">This permanently revokes the membership pass. The holder will lose access immediately.</p>
+  document.getElementById("passActionId").value = passId;
+  document.getElementById("passActionTitle").textContent = "Revoke pass #"+passId;
+  document.getElementById("passActionBody").innerHTML = `
+    <p class="text-sm text-muted mb4">This permanently revokes the membership pass. The holder will lose access immediately and cannot rejoin this plan.</p>
     <div class="form-row"><label class="form-label">Reason</label><input class="form-input" id="revokeReason" placeholder="Reason for revocation"/></div>
     <div class="flex gap2 mt2">
       <button class="btn btn-danger" onclick="confirmRevoke()">Revoke pass</button>
@@ -1155,109 +1415,189 @@ function revokeModal(passId){
   openM("passActionModal");
 }
 async function confirmRevoke(){
-  if(!needWallet()) return;
+  if (!needWallet()) return;
   const passId = parseInt(document.getElementById("passActionId").value);
   const reason = document.getElementById("revokeReason").value.trim();
-  try { await (await contract.revokePass(passId,reason)).wait(); toast("Pass revoked","ok"); closeM("passActionModal"); loadOrgDash(); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+  try { await sendTx(()=>contract.revokePass(passId, reason), "Pass revoked"); closeM("passActionModal"); loadOrgDash(); }
+  catch(e){ toast(errMsg(e),"err"); }
 }
 
 // ── Revenue withdrawal ─────────────────────────────
-async function withdrawRevenue(orgId){
-  if(!needWallet()) return;
-  try { await (await contract.withdrawOrgRevenue(orgId, CFG.ZERO_ADDR)).wait(); toast("Revenue withdrawn","ok"); loadOrgDash(); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+async function withdrawRevenue(orgId, token){
+  if (!needWallet()) return;
+  try { await sendTx(()=>contract.withdrawOrgRevenue(orgId, token), "Revenue withdrawn"); loadOrgDash(); }
+  catch(e){ toast(errMsg(e),"err"); }
 }
 
 // ── Verification ───────────────────────────────────
+function useMyAddr(e){
+  e.preventDefault();
+  if (!userAddr) return toast("Connect wallet first","err");
+  document.getElementById("vAddr").value = userAddr;
+}
 async function verifyMembership(){
-  if(!needWallet()) return;
   const addr   = document.getElementById("vAddr").value.trim();
   const planId = parseInt(document.getElementById("vPlanId").value);
-  if(!ethers.isAddress(addr)) return toast("Invalid address","err");
+  if (!ethers.isAddress(addr)) return toast("Invalid address","err");
+  if (!Number.isInteger(planId) || planId < 1) return toast("Enter a valid plan ID","err");
   const el = document.getElementById("verifyResult");
-  el.style.display="block";
+  el.style.display = "block";
+  el.innerHTML = `<p class="text-sm text-muted">Checking…</p>`;
   try {
-    const [active, planData, passInfo] = await Promise.all([
-      contract.isActiveMember(addr,planId),
-      contract.plans(planId),
-      contract.getHolderPassForPlan(addr,planId)
+    const plan = await getPlan(planId);
+    if (plan.orgId === 0){ el.innerHTML = `<div class="chip chip-red mb3">Plan not found</div><p class="text-sm text-muted">No plan exists with ID #${planId}.</p>`; return; }
+    const [active, holderInfo, org] = await Promise.all([
+      R().isActiveMember(addr, planId),
+      R().getHolderPassForPlan(addr, planId),
+      R().orgs(plan.orgId)
     ]);
-    if(active){
-      const passId = passInfo[0] ? Number(passInfo[1]) : null;
-      const liveStatus = passId!==null ? await contract.getPassStatus(passId) : null;
-      const expiry = passId!==null ? (await contract.passes(passId))[5] : 0n;
+    const explorerLink = `<a class="text-sm text-violet" href="${CFG.EXPLORER}/address/${addr}" target="_blank" rel="noopener">View wallet on explorer ↗</a>`;
+
+    if (active){
+      const passId = Number(holderInfo[1]);
+      const pass = parsePass(passId, await R().passes(passId));
       el.innerHTML = `
         <div class="chip chip-green" style="font-size:.85rem;padding:5px 14px;margin-bottom:16px">✓ Active member</div>
         <div class="pass-card status-active">
           <div>
-            <div class="pass-org">PLAN #${planId}</div>
-            <div class="pass-plan">${planData[1]}</div>
+            <div class="pass-org">${esc(org[0])}</div>
+            <div class="pass-plan">${esc(plan.name)}</div>
             <div class="pass-holder">${short(addr)}</div>
           </div>
           <div class="pass-meta">
-            <div class="pass-expiry">${Number(expiry)===0?"Lifetime":new Date(Number(expiry)*1000).toLocaleDateString()}</div>
+            <div class="pass-expiry">${pass.expiresAt===0?"Lifetime":"Expires "+fmtExpiry(pass.expiresAt)} · Pass #${passId}</div>
             <div class="flex aic gap2"><div class="pass-status-dot dot-active"></div><span class="text-sm text-muted">Active</span></div>
           </div>
-        </div>`;
+        </div>
+        <div class="mt3">${explorerLink}</div>`;
     } else {
+      let detail = `This wallet does not hold a pass for <b>${esc(plan.name)}</b> (plan #${planId}).`;
+      if (holderInfo[0]) {
+        const st = Number(await R().getPassStatus(holderInfo[1]));
+        detail = `This wallet's pass #${Number(holderInfo[1])} for <b>${esc(plan.name)}</b> is <b>${PASS_STATUS[st]}</b>.`;
+      }
       el.innerHTML = `
         <div class="chip chip-red" style="font-size:.85rem;padding:5px 14px;margin-bottom:16px">✗ Not an active member</div>
-        <p class="text-sm text-muted">This wallet does not hold an active, non-expired pass for plan #${planId}.</p>`;
+        <p class="text-sm text-muted">${detail}</p>
+        <div class="mt3">${explorerLink}</div>`;
     }
-  } catch(e){ el.innerHTML = `<p class="text-sm" style="color:var(--red)">${e.message}</p>`; }
+  } catch(e){ el.innerHTML = `<p class="text-sm" style="color:var(--red)">${esc(errMsg(e))}</p>`; }
 }
 
 // ── Admin ──────────────────────────────────────────
+async function loadAdmin(){
+  const el = document.getElementById("adminInfo");
+  el.innerHTML = `<p class="text-sm text-muted">Loading…</p>`;
+  try {
+    const [admin, pending, treasury, paused, botFees, usdtFees, usdtMeta] = await Promise.all([
+      R().admin(), R().pendingAdmin(), R().treasury(), R().paused(),
+      R().treasuryFees(CFG.ZERO_ADDR), R().treasuryFees(CFG.USDT), tokenMeta(CFG.USDT)
+    ]);
+    const isAdmin = userAddr && admin.toLowerCase() === userAddr.toLowerCase();
+    el.innerHTML = `
+      <div class="flex aic jb wrap gap3 mb3">
+        <div class="syne" style="font-weight:700">Platform status</div>
+        <div class="flex gap2">
+          <span class="chip ${paused?'chip-red':'chip-green'}">${paused?"Paused":"Live"}</span>
+          ${userAddr?`<span class="chip ${isAdmin?'chip-violet':'chip-muted'}">${isAdmin?"You are admin":"Not admin"}</span>`:""}
+        </div>
+      </div>
+      <div class="text-sm text-muted">Admin: <span class="mono">${esc(admin)}</span></div>
+      ${pending!==CFG.ZERO_ADDR?`<div class="text-sm text-muted">Pending admin: <span class="mono">${esc(pending)}</span></div>`:""}
+      <div class="text-sm text-muted">Treasury: <span class="mono">${esc(treasury)}</span></div>
+      <div class="text-sm text-muted mt2">Accrued fees: ${esc(fmtAmount(botFees,{symbol:"BOT",decimals:18}))} · ${esc(fmtAmount(usdtFees,usdtMeta))}</div>`;
+  } catch(e){ el.innerHTML = `<p class="text-sm" style="color:var(--red)">${esc(errMsg(e))}</p>`; }
+}
 async function adminSetOrg(active){
-  if(!needWallet()) return;
+  if (!needWallet()) return;
   const id = parseInt(document.getElementById("adminOrgId").value);
-  try { await (await contract.setOrgActive(id,active)).wait(); toast(`Org ${active?"activated":"deactivated"}`,active?"ok":"err"); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+  if (!Number.isInteger(id) || id < 1) return toast("Enter a valid org ID","err");
+  try { await sendTx(()=>contract.setOrgActive(id, active), `Org ${active?"activated":"deactivated"}`); }
+  catch(e){ toast(errMsg(e),"err"); }
 }
 async function adminRevoke(){
-  if(!needWallet()) return;
+  if (!needWallet()) return;
   const id = parseInt(document.getElementById("adminPassId").value);
+  if (!Number.isInteger(id) || id < 0) return toast("Enter a valid pass ID","err");
   const reason = document.getElementById("adminReason").value.trim();
-  try { await (await contract.adminRevokePass(id,reason)).wait(); toast("Pass revoked","ok"); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+  try { await sendTx(()=>contract.adminRevokePass(id, reason), "Pass revoked"); }
+  catch(e){ toast(errMsg(e),"err"); }
 }
 async function setPaused(state){
-  if(!needWallet()) return;
-  try { await (await contract.setPaused(state)).wait(); toast(`Platform ${state?"paused":"unpaused"}`,state?"err":"ok"); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+  if (!needWallet()) return;
+  try { await sendTx(()=>contract.setPaused(state), `Platform ${state?"paused":"unpaused"}`); loadAdmin(); }
+  catch(e){ toast(errMsg(e),"err"); }
 }
 async function withdrawFees(){
-  if(!needWallet()) return;
-  const token = document.getElementById("feeToken").value.trim()||CFG.ZERO_ADDR;
-  try { await (await contract.withdrawTreasury(token)).wait(); toast("Fees withdrawn","ok"); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+  if (!needWallet()) return;
+  const token = document.getElementById("feeToken").value.trim() || CFG.ZERO_ADDR;
+  if (!ethers.isAddress(token)) return toast("Invalid token address","err");
+  try { await sendTx(()=>contract.withdrawTreasury(token), "Fees withdrawn"); loadAdmin(); }
+  catch(e){ toast(errMsg(e),"err"); }
 }
 async function initAdminTransfer(){
-  if(!needWallet()) return;
+  if (!needWallet()) return;
   const addr = document.getElementById("newAdmin").value.trim();
-  if(!ethers.isAddress(addr)) return toast("Invalid address","err");
-  try { await (await contract.initiateAdminTransfer(addr)).wait(); toast("Transfer initiated","ok"); }
-  catch(e){ toast(e.reason||e.message,"err"); }
+  if (!ethers.isAddress(addr)) return toast("Invalid address","err");
+  try { await sendTx(()=>contract.initiateAdminTransfer(addr), "Transfer initiated"); loadAdmin(); }
+  catch(e){ toast(errMsg(e),"err"); }
+}
+async function acceptAdminTransfer(){
+  if (!needWallet()) return;
+  try { await sendTx(()=>contract.acceptAdminTransfer(), "You are now admin"); loadAdmin(); }
+  catch(e){ toast(errMsg(e),"err"); }
 }
 
 // ── Utilities ──────────────────────────────────────
-function short(a){ return a?a.slice(0,6)+"…"+a.slice(-4):""; }
-function truncate(s,n){ return s&&s.length>n?s.slice(0,n)+"…":s; }
-function toast(msg,type="ok"){
-  const el=document.getElementById("toast");
-  el.textContent=msg; el.className=`show ${type}`;
-  setTimeout(()=>{ el.className=""; },3000);
+function short(a){ return a ? a.slice(0,6)+"…"+a.slice(-4) : ""; }
+function truncate(s,n){ return s && s.length>n ? s.slice(0,n)+"…" : (s||""); }
+function esc(s){
+  return String(s ?? "").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function safeUrl(u){
+  if (!u) return "";
+  if (u.startsWith("ipfs://")) return "https://ipfs.io/ipfs/" + u.slice(7);
+  return /^https?:\/\//i.test(u) ? u : "";
+}
+function orgLogo(name, logo, size){
+  const url = safeUrl(logo);
+  const style = size ? `style="width:${size}px;height:${size}px;font-size:1.3rem"` : "";
+  return `<div class="org-logo" ${style}>${esc((name||"?").charAt(0).toUpperCase())}${url?`<img src="${esc(url)}" alt="" onerror="this.remove()"/>`:""}</div>`;
+}
+function errMsg(e){
+  if (e?.code === "ACTION_REJECTED" || e?.code === 4001) return "Transaction rejected";
+  return e?.reason || e?.shortMessage || e?.info?.error?.message || e?.message || "Something went wrong";
+}
+let toastTimer;
+function toast(msg, type=""){
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ el.className = ""; }, 3500);
 }
 function openM(id){ document.getElementById(id).classList.add("open"); }
 function closeM(id){ document.getElementById(id).classList.remove("open"); }
-document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{ if(e.target===o) o.classList.remove("open"); }));
+document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{ if (e.target===o) o.classList.remove("open"); }));
 
-window.addEventListener("load",async()=>{
-  if(window.ethereum){
-    const accounts = await window.ethereum.request({method:"eth_accounts"});
-    if(accounts.length) connectWallet();
-  }
+// ── Init ───────────────────────────────────────────
+const cl = document.getElementById("contractLink");
+cl.href = `${CFG.EXPLORER}/address/${CFG.CONTRACT_ADDRESS}`;
+cl.textContent = short(CFG.CONTRACT_ADDRESS);
+
+window.addEventListener("load", async ()=>{
+  if (!window.ethereum) return;
+  try {
+    const accounts = await window.ethereum.request({ method:"eth_accounts" });
+    if (!accounts.length) return;
+    const chain = await window.ethereum.request({ method:"eth_chainId" });
+    if (parseInt(chain,16) === CFG.CHAIN_ID) {
+      connectWallet();
+    } else {
+      // don't pop a network switch on page load — let the user click
+      document.getElementById("wAddr").textContent = "Switch network";
+      document.getElementById("wDot").classList.add("warn");
+    }
+  } catch {}
 });
 </script>
 </body>
